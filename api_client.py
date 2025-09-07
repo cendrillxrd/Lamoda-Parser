@@ -1,0 +1,67 @@
+import requests
+import time
+from typing import Literal, Optional, Dict
+
+from api_key import ApiKeyManager
+from config import BASE_URLS, CLIENT_ID, CLIENT_SECRET
+
+
+class APIClient:
+    def __init__(self, api_key_manager: ApiKeyManager = None):
+        self.base_url = BASE_URLS
+        self.api_key = api_key_manager.get_key()
+        self.session = requests.Session()
+        self.session.headers.update({'Content-Type': 'application/json'})
+
+    def _make_request(
+            self,
+            url_key: Literal['live', 'demo'],
+            method: Literal['GET', 'POST'],
+            endpoint: str,
+            params: Optional[Dict] = None,
+            payload: Optional[Dict] = None,
+            retries: int = 5):
+        url = f'{self.base_url[url_key]}{endpoint}'
+
+        for attempt in range(retries):
+            if self.api_key:
+                self.session.headers.update({'Authorization': self.api_key})
+            response = self.session.request(
+                method=method,
+                url=url,
+                params=params,
+                json=payload,
+                timeout=10
+            )
+            try:
+                response.raise_for_status()
+                if self.session.headers['Content-Type'] == 'application/zip':
+                    return response
+                return response.json()
+
+            except requests.exceptions.HTTPError as err:
+                if err.response.status_code in (429, 500, 502, 503, 504):
+                    wait_time = min(2 ** attempt, 10)
+                    time.sleep(wait_time)
+                    continue
+                raise err
+
+            except requests.exceptions.RequestException as err:
+                if attempt == retries - 1:
+                    raise err
+                time.sleep(1)
+
+        return None
+
+    def get_new_api_key(self):
+        endpoint = '/auth/token'
+        params = {
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+            'grant_type': 'client_credentials',
+        }
+        response = self._make_request(method='GET',
+                                      url_key='demo',
+                                      params=params,
+                                      endpoint=endpoint)
+        return response['access_token']
