@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from typing import Optional
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 
 from api_client import APIClient
 
@@ -103,8 +103,11 @@ class ApiKeyManager:
 
     def _save_to_environment(self) -> None:
         """Сохраняет ключ и дату в environment variables"""
-        os.environ[self.api_key_name] = self.key
-        os.environ[self.created_at_name] = self.created_at.isoformat()
+        set_key(self.env_file, self.api_key_name, self.key)
+        set_key(self.env_file, self.created_at_name, self.created_at.isoformat())
+
+        # Обновляем текущее окружение
+        load_dotenv(self.env_file, override=True)
 
     def get_key(self) -> str:
         """Возвращает текущий API ключ"""

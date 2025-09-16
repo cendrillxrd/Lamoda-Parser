@@ -2,18 +2,25 @@ import requests
 import time
 from typing import Literal, Optional, Dict
 
-from api_key import ApiKeyManager
 from config import BASE_URLS, CLIENT_ID, CLIENT_SECRET
+from strategies.request_strategies import RequestStrategy
 
 
 class APIClient:
-    def __init__(self, api_key_manager: ApiKeyManager = None):
+    def __init__(self, api_key_manager: "ApiKeyManager" = None):
         self.base_url = BASE_URLS
-        self.api_key = api_key_manager.get_key()
+        if api_key_manager is not None:
+            self.api_key = api_key_manager.get_key()
+        else:
+            self.api_key = None
         self.session = requests.Session()
         self.session.headers.update({'Content-Type': 'application/json'})
+        self.__strategy = None
 
-    def _make_request(
+    def set_strategy(self, strategy: RequestStrategy):
+        self.__strategy = strategy
+
+    def make_request(
             self,
             url_key: Literal['live', 'demo'],
             method: Literal['GET', 'POST'],
@@ -25,7 +32,7 @@ class APIClient:
 
         for attempt in range(retries):
             if self.api_key:
-                self.session.headers.update({'Authorization': self.api_key})
+                self.session.headers.update({'Authorization': f'Bearer {self.api_key}'})
             response = self.session.request(
                 method=method,
                 url=url,
@@ -34,6 +41,7 @@ class APIClient:
                 timeout=10
             )
             try:
+                # print(response.json())
                 response.raise_for_status()
                 if self.session.headers['Content-Type'] == 'application/zip':
                     return response
@@ -53,6 +61,11 @@ class APIClient:
 
         return None
 
+    def get_data(self, **kwargs) -> list[dict]:
+        if self.__strategy is None:
+            raise ValueError('Стратегия не выбрана, установите стратегию с помощью set_strategy')
+        return self.__strategy.get_info(self, **kwargs)
+
     def get_new_api_key(self):
         endpoint = '/auth/token'
         params = {
@@ -60,8 +73,8 @@ class APIClient:
             'client_secret': CLIENT_SECRET,
             'grant_type': 'client_credentials',
         }
-        response = self._make_request(method='GET',
-                                      url_key='demo',
-                                      params=params,
-                                      endpoint=endpoint)
+        response = self.make_request(method='GET',
+                                     url_key='live',
+                                     params=params,
+                                     endpoint=endpoint)
         return response['access_token']
