@@ -3,7 +3,7 @@ from typing import Union
 
 import pandas as pd
 from dto.columns_dto import ColumnsDTO
-from config import BASE_COLUMNS_NAME
+from config import BASE_COLUMNS_NAME, columns
 
 
 class ConverterStrategy(ABC):
@@ -62,10 +62,16 @@ class ConvOrderInfoStrategy(ConverterStrategy):
                     self.columns.currency: order['currency'],
                 }
                 item['status_product'] = item.pop('status')
+                item['id_item_order'] = item.pop('id')
                 order_info.update(item)
 
                 list_for_df.append(order_info)
 
         df = pd.DataFrame(list_for_df)
 
+        columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
+        columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
+        df.rename(columns_rename,
+                  inplace=True,
+                  axis=1)
         return df

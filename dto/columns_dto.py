@@ -3,12 +3,17 @@ from dataclasses import asdict, dataclass
 
 @dataclass
 class ColumnsDTO:
+    shop_name: str = 'Партнер'
     id: str = 'Номер заказа'
-    payment_method: str = 'Метод оплаты'
+    created_at: str = 'Дата создания'
+    updated_at: str = 'Дата изменения'
     status: str = 'Статус'
     sku: str = 'Артикул товара'
     lamoda_sku: str = 'Артикул товара (LAMODA)'
-    status_product: str = 'Описание товара'
+    description: str = 'Описание товара'
+    stock: str = 'Остаток'
+    status_product: str = 'Статус товара'
+    payment_method: str = 'Метод оплаты'
     total_discount: str = 'Итого сумма скидок'
     sale_price: str = 'Цена со скидкой'
     paid_price: str = 'Цена продажи'
@@ -20,10 +25,6 @@ class ColumnsDTO:
     platform_discounts: str = 'Платформенные скидки'
     partner_agreed_price: str = 'Цена согласованная с партнером'
     city: str = 'Населенный пункт'
+    comment: str = 'Комментарий (для ТП)'
     shipping_method_code: str = 'Метод доставки',
-    comment: str = 'Комментарий (для ТП)',
     currency: str = 'Валюта'
-    shop_name: str = 'Партнер'
-    created_at: str = 'Дата создания'
-    updated_at: str = 'Дата изменения'
-    stock: str = 'Остаток'

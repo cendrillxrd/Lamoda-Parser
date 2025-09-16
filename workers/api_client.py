@@ -9,6 +9,7 @@ from strategies.request_strategies import RequestStrategy
 class APIClient:
     def __init__(self, api_key_manager: "ApiKeyManager" = None):
         self.base_url = BASE_URLS
+        self.api_key_manager = api_key_manager
         if api_key_manager is not None:
             self.api_key = api_key_manager.get_key()
         else:
@@ -19,6 +20,14 @@ class APIClient:
 
     def set_strategy(self, strategy: RequestStrategy):
         self.__strategy = strategy
+
+    def _update_auth_header(self):
+        """Обновляет заголовок Authorization с текущим API ключом"""
+        if self.api_key:
+            self.session.headers.update({'Authorization': f'Bearer {self.api_key}'})
+        else:
+            # Удаляем заголовок, если ключа нет
+            self.session.headers.pop('Authorization', None)
 
     def make_request(
             self,
@@ -31,8 +40,7 @@ class APIClient:
         url = f'{self.base_url[url_key]}{endpoint}'
 
         for attempt in range(retries):
-            if self.api_key:
-                self.session.headers.update({'Authorization': f'Bearer {self.api_key}'})
+            self._update_auth_header()
             response = self.session.request(
                 method=method,
                 url=url,
@@ -48,7 +56,13 @@ class APIClient:
 
             except requests.exceptions.HTTPError as err:
                 print(response.json())
+                if err.response.status_code == 401:
+                    self.api_key = self.api_key_manager.force_renew()
+                    self._update_auth_header()
+                    time.sleep(10)
+                    continue
                 if err.response.status_code in (429, 500, 502, 503, 504, 443):
+                    print('Retrying...')
                     wait_time = min(2 ** attempt, 10)
                     time.sleep(wait_time)
                     continue

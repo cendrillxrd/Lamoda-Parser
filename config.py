@@ -44,7 +44,8 @@ BASE_COLUMNS_NAME = {'id': columns.id,
                      'comment': columns.comment,
                      'currency': columns.currency,
                      'shopName': columns.shop_name,
-                     'quantity': columns.stock
+                     'quantity': columns.stock,
+                     'description': columns.description,
                      }
 
 STATUS_PRODUCT = 'status_product'
