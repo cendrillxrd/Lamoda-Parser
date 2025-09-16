@@ -1,10 +1,13 @@
 import time
 from abc import ABC, abstractmethod
+from typing import Optional
+
+import pandas as pd
 
 from dto.nomenclature_dto import NomenclatureDTO
 from dto.stock_dto import StockDTO, asdict
 from dto.order_dto import OrderDTO
-from config import TIME_SLEEP_NOMENCLATURES, TIME_SLEEP_STOCK, TIME_SLEEP_ORDER
+from config import TIME_SLEEP_NOMENCLATURES, TIME_SLEEP_STOCK, TIME_SLEEP_ORDER, TIME_SLEEP_ORDER_INFO
 
 
 class RequestStrategy(ABC):
@@ -54,21 +57,34 @@ class ReqOrdersStrategy(RequestStrategy):
                                        url_key=self.url_key,
                                        params=params,
                                        endpoint=self.endpoint)
-        print(response)
         result.extend(response['_embedded']['orders'])
 
-        # pages = response['pages']
-        # print(f'всего {pages}')
-        # for page in range(self.promo_dto.page + 1, pages + 1):
-        #     time.sleep(TIME_SLEEP_ORDER)
-        #     print(page)
-        #     params['page'] = page
-        #     response = client.make_request(method='GET',
-        #                                    url_key=self.url_key,
-        #                                    params=params,
-        #                                    endpoint=self.endpoint)
-        #     result.extend(response['_embedded'])
+        pages = response['pages']
+        print(f'всего {pages}')
+        for page in range(self.order_dto.page + 1, pages + 1):
+            time.sleep(TIME_SLEEP_ORDER)
+            print(page)
+            params['page'] = page
+            response = client.make_request(method='GET',
+                                           url_key=self.url_key,
+                                           params=params,
+                                           endpoint=self.endpoint)
+            result.extend(response['_embedded']['orders'])
         return result
+
+
+class ReqOrderInfoStrategy(RequestStrategy):
+    endpoint = '/api/v1/orders'
+    url_key = 'live'
+
+    def get_info(self, client: 'APIClient', **kwargs) -> list[dict]:
+        endpoint = f'{self.endpoint}/{kwargs['order_id']}'
+        time.sleep(TIME_SLEEP_ORDER_INFO)
+        response = client.make_request(method='GET',
+                                       url_key=self.url_key,
+                                       endpoint=endpoint)
+
+        return response
 
 
 class ReqStockStrategy(RequestStrategy):

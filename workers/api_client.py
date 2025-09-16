@@ -41,14 +41,14 @@ class APIClient:
                 timeout=10
             )
             try:
-                # print(response.json())
                 response.raise_for_status()
                 if self.session.headers['Content-Type'] == 'application/zip':
                     return response
                 return response.json()
 
             except requests.exceptions.HTTPError as err:
-                if err.response.status_code in (429, 500, 502, 503, 504):
+                print(response.json())
+                if err.response.status_code in (429, 500, 502, 503, 504, 443):
                     wait_time = min(2 ** attempt, 10)
                     time.sleep(wait_time)
                     continue

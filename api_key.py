@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from dotenv import load_dotenv, set_key
 
-from api_client import APIClient
+from workers.api_client import APIClient
 
 
 class ApiKeyManager:
