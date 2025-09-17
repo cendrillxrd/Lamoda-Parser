@@ -11,7 +11,9 @@ class InfoCollector:
     def collect_info(self) -> InfoDTO:
         orders = self.api.get_orders_info_by_products()
         stock = self.api.get_stocks()
+        nomenclature = self.api.get_nomenclatures()
         return InfoDTO(
             orders=orders,
-            stock=stock
+            stock=stock,
+            nomenclature=nomenclature
         )

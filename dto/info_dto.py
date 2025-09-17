@@ -7,4 +7,4 @@ import pandas as pd
 class InfoDTO:
     orders: pd.DataFrame
     stock: pd.DataFrame
-    # nomenclature: pd.DataFrame
+    nomenclature: pd.DataFrame

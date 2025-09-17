@@ -3,12 +3,14 @@ from dataclasses import asdict
 
 import pandas as pd
 
-from dto.columns_dto import ColumnsDTO
+from dto.columns_main_dto import ColumnsMainDTO
+from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
 
 
 class CorrectorStrategy(ABC):
     def __init__(self):
-        self.columns = ColumnsDTO()
+        self.columns_main = ColumnsMainDTO()
+        self.columns_nomenclature = ColumnsNomenclatureDTO()
 
     @abstractmethod
     def correcting(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -17,12 +19,36 @@ class CorrectorStrategy(ABC):
 
 class CorrMainTableStrategy(CorrectorStrategy):
     def correcting(self, df: pd.DataFrame) -> pd.DataFrame:
-        df = df.fillna(0).infer_objects(copy=False)
-        df = df[asdict(self.columns).values()].copy()
-        columns = [self.columns.stock, self.columns.total_discount, self.columns.sale_price, self.columns.paid_price,
-                   self.columns.base_price, self.columns.coupon_discount, self.columns.loyalty_discount,
-                   self.columns.partner_agreed_price, self.columns.partner_agreed_discount,
-                   self.columns.other_discounts]
+        df = df.fillna(0).infer_objects(copy=False)  # Сначала заполняем пропуски
+        df = df[asdict(self.columns_main).values()].copy()
+        columns = [self.columns_main.stock, self.columns_main.total_discount, self.columns_main.sale_price,
+                   self.columns_main.paid_price,
+                   self.columns_main.base_price, self.columns_main.coupon_discount, self.columns_main.loyalty_discount,
+                   self.columns_main.partner_agreed_price, self.columns_main.partner_agreed_discount,
+                   self.columns_main.other_discounts]
         for column in columns:
             df[column] = pd.to_numeric(df[column], downcast="integer")
         return df
+
+
+class CorrNomenclatureTableStrategy(CorrectorStrategy):
+    def correcting(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = df[asdict(self.columns_nomenclature).values()].copy()
+        df[self.columns_nomenclature.created_at] = pd.to_datetime(
+            df[self.columns_nomenclature.created_at],
+            format='mixed',
+            dayfirst=True,  # Важно! Первое число - день
+            errors='coerce'
+        )
+
+        # Дата для сравнения (01.09.2024)
+        cutoff_date = pd.to_datetime('01.09.2024', format='%d.%m.%Y')
+
+        filtered_df = df[
+            (df[self.columns_nomenclature.created_at] >= cutoff_date) |  # ВСЕ данные позже 01.09.2024
+            (
+                    (df[self.columns_nomenclature.created_at] < cutoff_date) &  # данные ДО 01.09.2024
+                    (df[self.columns_nomenclature.quantity] != 0)  # но только с ненулевыми остатками
+            )
+            ].copy()
+        return filtered_df

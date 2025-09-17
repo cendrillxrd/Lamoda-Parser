@@ -1,0 +1,18 @@
+from dataclasses import asdict, dataclass
+
+
+@dataclass
+class ColumnsNomenclatureDTO:
+    supplier_sku: str = 'Артикул товара'
+    supplier_parent_sku: str = 'Родительский артикул товара'
+    brand: str = 'Бренд'
+    supplier_size: str = 'Размер'
+    quantity: str = 'Остаток'
+    color: str = 'Цвет'
+    barcode: str = 'Баркод'
+    name: str = 'Наименование'
+    lamoda_sub_category: str = 'Категория (LAMODA)'
+    created_at: str = 'Дата создания'
+    updated_at: str = 'Дата изменения'
+    status: str = 'Статус'
+    is_sellable: str = 'Продается?'

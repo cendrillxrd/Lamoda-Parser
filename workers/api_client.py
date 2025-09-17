@@ -46,7 +46,7 @@ class APIClient:
                 url=url,
                 params=params,
                 json=payload,
-                timeout=10
+                timeout=20
             )
             try:
                 response.raise_for_status()
@@ -57,7 +57,8 @@ class APIClient:
             except requests.exceptions.HTTPError as err:
                 print(response.json())
                 if err.response.status_code == 401:
-                    self.api_key = self.api_key_manager.force_renew()
+                    self.api_key_manager.force_renew()
+                    self.api_key = self.api_key_manager.get_key()
                     self._update_auth_header()
                     time.sleep(10)
                     continue
@@ -67,6 +68,11 @@ class APIClient:
                     time.sleep(wait_time)
                     continue
                 raise err
+
+            except requests.exceptions.ReadTimeout as err:
+                print(response.json())
+                time.sleep(10)
+                continue
 
             except requests.exceptions.RequestException as err:
                 if attempt == retries - 1:

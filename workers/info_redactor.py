@@ -8,6 +8,7 @@ class InfoRedactor:
     def __init__(self):
         self.red = RedactionService()
 
-    def redact_info(self, info: InfoDTO) -> pd.DataFrame:
+    def redact_info(self, info: InfoDTO) -> dict:
         orders_stocks = self.red.merge_orders_with_stock(info.orders, info.stock)
-        return orders_stocks
+        nomenclature = self.red.correct_nomenclatures(info.nomenclature)
+        return {'orders_stocks': orders_stocks, 'nomenclature': nomenclature}

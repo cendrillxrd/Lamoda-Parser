@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 
 
 @dataclass
-class ColumnsDTO:
+class ColumnsMainDTO:
     shop_name: str = 'Партнер'
     id: str = 'Номер заказа'
     created_at: str = 'Дата создания'

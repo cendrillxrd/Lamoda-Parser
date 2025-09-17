@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 import pandas as pd
-from dto.columns_dto import ColumnsDTO
-from config import BASE_COLUMNS_NAME, columns
+from dto.columns_main_dto import ColumnsMainDTO
+from config import BASE_COLUMNS_NAME
 
 
 class ConverterStrategy(ABC):
     def __init__(self):
-        self.columns = ColumnsDTO()
+        self.columns = ColumnsMainDTO()
         pass
 
     @abstractmethod
@@ -18,7 +18,14 @@ class ConverterStrategy(ABC):
 
 class ConvNomenclaturesStrategy(ConverterStrategy):
     def converting(self, data: dict) -> pd.DataFrame:
-        return pd.DataFrame(data)
+        df = pd.DataFrame(data)
+        columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
+        columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
+        df.rename(columns_rename,
+                  inplace=True,
+                  axis=1)
+
+        return df
 
 
 class ConvStockStrategy(ConverterStrategy):
