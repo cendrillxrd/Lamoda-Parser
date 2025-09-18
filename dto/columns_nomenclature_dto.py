@@ -7,6 +7,7 @@ class ColumnsNomenclatureDTO:
     supplier_parent_sku: str = 'Родительский артикул товара'
     brand: str = 'Бренд'
     supplier_size: str = 'Размер'
+    date: str = 'Дата сбора данных'
     quantity: str = 'Остаток'
     color: str = 'Цвет'
     barcode: str = 'Баркод'

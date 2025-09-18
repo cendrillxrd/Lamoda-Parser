@@ -4,12 +4,14 @@ from typing import Union
 import pandas as pd
 from dto.columns_main_dto import ColumnsMainDTO
 from config import BASE_COLUMNS_NAME
+from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
+from utils.date_helper import get_today_date
 
 
 class ConverterStrategy(ABC):
     def __init__(self):
-        self.columns = ColumnsMainDTO()
-        pass
+        self.columns_main = ColumnsMainDTO()
+        self.columns_nomenclature = ColumnsNomenclatureDTO()
 
     @abstractmethod
     def converting(self, data) -> Union[pd.DataFrame, list]:
@@ -19,11 +21,13 @@ class ConverterStrategy(ABC):
 class ConvNomenclaturesStrategy(ConverterStrategy):
     def converting(self, data: dict) -> pd.DataFrame:
         df = pd.DataFrame(data)
+        df.drop('sku', axis=1, inplace=True)
         columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
         columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
         df.rename(columns_rename,
                   inplace=True,
                   axis=1)
+        df[self.columns_nomenclature.date] = get_today_date()
 
         return df
 
@@ -57,16 +61,16 @@ class ConvOrderInfoStrategy(ConverterStrategy):
 
             for item in items:
                 order_info = {
-                    self.columns.shop_name: partner,
-                    self.columns.id: order['id'],
-                    self.columns.payment_method: order['paymentMethod'],
-                    self.columns.status: order['status'],
-                    self.columns.created_at: order['createdAt'],
-                    self.columns.updated_at: order['updatedAt'],
-                    self.columns.comment: order['comment'],
-                    self.columns.shipping_method_code: shipping_method_code,
-                    self.columns.city: city,
-                    self.columns.currency: order['currency'],
+                    self.columns_main.shop_name: partner,
+                    self.columns_main.id: order['id'],
+                    self.columns_main.payment_method: order['paymentMethod'],
+                    self.columns_main.status: order['status'],
+                    self.columns_main.created_at: order['createdAt'],
+                    self.columns_main.updated_at: order['updatedAt'],
+                    self.columns_main.comment: order['comment'],
+                    self.columns_main.shipping_method_code: shipping_method_code,
+                    self.columns_main.city: city,
+                    self.columns_main.currency: order['currency'],
                 }
                 item['status_product'] = item.pop('status')
                 item['id_item_order'] = item.pop('id')

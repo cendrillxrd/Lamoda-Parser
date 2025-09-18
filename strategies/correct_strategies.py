@@ -64,4 +64,5 @@ class CorrNomenclatureTableStrategy(CorrectorStrategy):
                     (df[self.columns_nomenclature.quantity] != 0)  # но только с ненулевыми остатками
             )
             ].copy()
+
         return filtered_df

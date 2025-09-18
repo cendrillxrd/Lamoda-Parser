@@ -26,5 +26,5 @@ class ColumnsMainDTO:
     partner_agreed_price: str = 'Цена согласованная с партнером'
     city: str = 'Населенный пункт'
     comment: str = 'Комментарий (для ТП)'
-    shipping_method_code: str = 'Метод доставки',
+    shipping_method_code: str = 'Метод доставки'
     currency: str = 'Валюта'
