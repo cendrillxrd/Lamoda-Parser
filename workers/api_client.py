@@ -4,6 +4,7 @@ from typing import Literal, Optional, Dict
 
 from config import BASE_URLS, CLIENT_ID, CLIENT_SECRET
 from strategies.request_strategies import RequestStrategy
+from utils.log_helper import log_message
 
 
 class APIClient:
@@ -38,7 +39,6 @@ class APIClient:
             payload: Optional[Dict] = None,
             retries: int = 5):
         url = f'{self.base_url[url_key]}{endpoint}'
-
         for attempt in range(retries):
             self._update_auth_header()
             response = self.session.request(

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -61,3 +62,9 @@ BASE_COLUMNS_NAME = {'id': columns_main.id,
                      'supplier_size': columns_nomenclature.supplier_size,
                      'lamodaSubCategory': columns_nomenclature.lamoda_sub_category,
                      }
+FILE_PATH = 'C:/Users/Admin/Desktop/'
+ORDERS_FILE_NAME = 'Заказы'
+NOMENCLATURE_FILE_NAME = 'Номенклатура'
+
+DEBUG = os.getenv('DEBUG')
+HOME_DIR = Path(__file__).resolve().parent.parent

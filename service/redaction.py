@@ -2,8 +2,8 @@ import logging
 
 import pandas as pd
 
-from strategies.correct_strategies import CorrMainTableStrategy, CorrNomenclatureTableStrategy
-from strategies.merge_strategies import MergeOrdersStocksStrategy
+from strategies.correct_strategies import CorrMainTableStrategy, CorrNomenclatureTableStrategy, CorrNewInfoTableStrategy
+from strategies.merge_strategies import MergeOrdersStocksStrategy, MergeNewInfoStrategy
 from workers.corrector import Corrector
 from workers.merger import Merger
 
@@ -39,3 +39,11 @@ class RedactionService:
     def correct_nomenclatures(self, nomenclature_df: pd.DataFrame) -> pd.DataFrame:
         nomenclature_corrected = self.corrector.correct(nomenclature_df)
         return nomenclature_corrected
+
+    @with_strategies(merge_strategy_cls=MergeNewInfoStrategy,
+                     correcter_strategy_cls=CorrNewInfoTableStrategy)
+    def merge_main_and_new_info(self, main_tabel: pd.DataFrame, new_info: pd.DataFrame,
+                                columns_to_update: tuple) -> pd.DataFrame:
+        merged_df = self.merger.merge(main_tabel, new_info, columns_to_update)
+        corrected_df = self.corrector.correct(merged_df)
+        return corrected_df

@@ -13,12 +13,12 @@ class CorrectorStrategy(ABC):
         self.columns_nomenclature = ColumnsNomenclatureDTO()
 
     @abstractmethod
-    def correcting(self, df: pd.DataFrame) -> pd.DataFrame:
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         pass
 
 
 class CorrMainTableStrategy(CorrectorStrategy):
-    def correcting(self, df: pd.DataFrame) -> pd.DataFrame:
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df = df.fillna(0).infer_objects(copy=False)  # Сначала заполняем пропуски
         df = df[asdict(self.columns_main).values()].copy()
         columns = [self.columns_main.stock, self.columns_main.total_discount, self.columns_main.sale_price,
@@ -31,8 +31,21 @@ class CorrMainTableStrategy(CorrectorStrategy):
         return df
 
 
+class CorrNewInfoTableStrategy(CorrectorStrategy):
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        columns_to_update = [
+            self.columns_main.updated_at,
+            self.columns_main.status,
+            self.columns_main.status_product
+        ]
+        for column in columns_to_update:
+            df[column] = df[column + '_new'].combine_first(df[column])
+            df.drop(column + '_new', axis=1, inplace=True)
+        return df
+
+
 class CorrNomenclatureTableStrategy(CorrectorStrategy):
-    def correcting(self, df: pd.DataFrame) -> pd.DataFrame:
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df = df[asdict(self.columns_nomenclature).values()].copy()
         df[self.columns_nomenclature.created_at] = pd.to_datetime(
             df[self.columns_nomenclature.created_at],

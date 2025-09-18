@@ -85,7 +85,7 @@ class ApiKeyManager:
         # Сохраняем в environment variables
         self._save_to_environment()
 
-        print(f"Новый API ключ создан: {self.key}")
+        print(f"Новый API ключ создан")
         print(f"Время создания: {self.created_at}")
 
     @staticmethod

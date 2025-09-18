@@ -1,5 +1,6 @@
 import pandas as pd
 
+from utils.log_helper import log_message
 from workers.api_client import APIClient
 from workers.converter import Converter
 from strategies.convert_strategies import (ConvNomenclaturesStrategy, ConvStockStrategy,
@@ -38,24 +39,24 @@ class APIService:
         return stocks_df
 
     @with_strategies(ReqOrdersStrategy, ConvOrderStrategy)
-    def get_orders(self) -> list:
-        orders = self.api_client.get_data()
+    def get_orders(self, date_str: str = None) -> list:
+        orders = self.api_client.get_data(date_str=date_str)
         orders_list = self.converter.convert(orders)
         return orders_list
 
     @with_strategies(ReqOrderInfoStrategy, ConvOrderInfoStrategy)
-    def get_orders_info(self, order_id: list) -> pd.DataFrame:
+    def get_orders_info(self, order_ids: list) -> pd.DataFrame:
         orders_info = []
-        print(len(order_id))
+        log_message('app', f'Всего заказов {len(order_ids)}', 'INFO')
         i = 1
-        for id in order_id:
-            print(i)
+        for id in order_ids:
+            log_message('app', f'{i}', 'INFO')
             i += 1
             orders_info.append(self.api_client.get_data(order_id=id))
         orders_info_df = self.converter.convert(orders_info)
         return orders_info_df
 
-    def get_orders_info_by_products(self):
-        orders_id = self.get_orders()
+    def get_orders_info_by_products(self, date_str: str = None) -> pd.DataFrame:
+        orders_id = self.get_orders(date_str=date_str)
         orders_info_df = self.get_orders_info(orders_id)
         return orders_info_df
