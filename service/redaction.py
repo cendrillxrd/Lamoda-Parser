@@ -35,9 +35,11 @@ class RedactionService:
         corrected_df = self.corrector.correct(merged_df)
         return corrected_df
 
-    @with_strategies(correcter_strategy_cls=CorrNomenclatureTableStrategy)
-    def correct_nomenclatures(self, nomenclature_df: pd.DataFrame) -> pd.DataFrame:
-        nomenclature_corrected = self.corrector.correct(nomenclature_df)
+    @with_strategies(merge_strategy_cls=MergeByShipStrategy,
+                     correcter_strategy_cls=CorrNomenclatureTableStrategy)
+    def correct_nomenclatures(self, nomenclature_df: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
+        merged_df = self.merger.merge(nomenclature_df, orders)
+        nomenclature_corrected = self.corrector.correct(merged_df)
         return nomenclature_corrected
 
     @with_strategies(merge_strategy_cls=MergeNewInfoStrategy,
@@ -47,8 +49,3 @@ class RedactionService:
         merged_df = self.merger.merge(main_tabel, new_info, columns_to_update)
         corrected_df = self.corrector.correct(merged_df)
         return corrected_df
-
-    @with_strategies(merge_strategy_cls=MergeByShipStrategy)
-    def correct_by_orders(self, nomenclature: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
-        merged_df = self.merger.merge(nomenclature, orders)
-        return merged_df

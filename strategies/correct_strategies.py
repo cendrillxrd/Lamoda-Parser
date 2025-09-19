@@ -66,3 +66,8 @@ class CorrNomenclatureTableStrategy(CorrectorStrategy):
             ].copy()
 
         return filtered_df
+
+# class CorrShipStrategy(CorrectorStrategy):
+#     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+#         df = df[asdict(self.columns_nomenclature).values()].copy()
+#         return df
