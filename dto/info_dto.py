@@ -5,6 +5,7 @@ import pandas as pd
 
 @dataclass
 class InfoDTO:
-    orders: pd.DataFrame
+    orders_day: pd.DataFrame
+    orders_month: pd.DataFrame
     stock: pd.DataFrame
     nomenclature: pd.DataFrame

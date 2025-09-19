@@ -13,9 +13,13 @@ class InfoRedactor:
         self.columns = ColumnsMainDTO()
 
     def redact_info(self, info: InfoDTO) -> dict:
-        orders_stocks = self.red.merge_orders_with_stock(info.orders, info.stock)
+        orders_stocks_by_day = self.red.merge_orders_with_stock(info.orders_day, info.stock)
         nomenclature = self.red.correct_nomenclatures(info.nomenclature)
-        return {ORDERS_FILE_NAME: orders_stocks, NOMENCLATURE_FILE_NAME: nomenclature}
+
+        nomenclature_with_ship = self.red.correct_by_orders(nomenclature=nomenclature,
+                                                            orders=info.orders_month)
+
+        return {ORDERS_FILE_NAME: orders_stocks_by_day, NOMENCLATURE_FILE_NAME: nomenclature_with_ship}
 
     def reduct_update_info(self, main_table: pd.DataFrame, info: InfoUpdateDTO) -> pd.DataFrame:
         columns_to_update = (

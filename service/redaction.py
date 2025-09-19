@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 
 from strategies.correct_strategies import CorrMainTableStrategy, CorrNomenclatureTableStrategy, CorrNewInfoTableStrategy
-from strategies.merge_strategies import MergeOrdersStocksStrategy, MergeNewInfoStrategy
+from strategies.merge_strategies import MergeOrdersStocksStrategy, MergeNewInfoStrategy, MergeByShipStrategy
 from workers.corrector import Corrector
 from workers.merger import Merger
 
@@ -47,3 +47,8 @@ class RedactionService:
         merged_df = self.merger.merge(main_tabel, new_info, columns_to_update)
         corrected_df = self.corrector.correct(merged_df)
         return corrected_df
+
+    @with_strategies(merge_strategy_cls=MergeByShipStrategy)
+    def correct_by_orders(self, nomenclature: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
+        merged_df = self.merger.merge(nomenclature, orders)
+        return merged_df

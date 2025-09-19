@@ -1,6 +1,6 @@
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Literal
 
 import pandas as pd
 
@@ -51,13 +51,14 @@ class ReqOrdersStrategy(RequestStrategy):
     endpoint = '/api/v1/orders'
     url_key = 'live'
 
-    def get_info(self, client: 'APIClient', date_str: str = None, **kwargs) -> list[dict]:
+    def get_info(self, client: 'APIClient', date_str: str = None, period: Literal['day', 'month'] = None, **kwargs) -> \
+            list[dict]:
         log_message('app', 'Запрос заказов', 'INFO')
         result = []
         if date_str is None:
             order_dto = OrderDTO()
         else:
-            order_dto = OrderDTO.with_date(date_str)
+            order_dto = OrderDTO.with_date(date_str, period)
         params = asdict(order_dto)
         response = client.make_request(method='GET',
                                        url_key=self.url_key,

@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from typing import Literal, Union
+
 import pytz
 
 
@@ -7,7 +9,7 @@ def get_today_date() -> str:
     return datetime.now().strftime('%Y-%m-%d')
 
 
-def get_formatted_date(input_date_str):
+def get_formatted_date(input_date_str: str):
     """
     Преобразует дату в формате 'YYYY-MM-DD' в datetime объект
     с временем 23:50:00 в московском часовом поясе.
@@ -30,18 +32,29 @@ def get_formatted_date(input_date_str):
     return result_date
 
 
-def get_daily_date_range(date) -> str:
+def get_daily_date_range(date, period: Literal['day', 'month'] = None) -> Union[str, None]:
     """
     Возвращает диапазон дат в формате: createdAt>=<start_timestamp,end_timestamp>
     где start_timestamp - вчера 23:50, end_timestamp - сегодня 23:50
     """
-    today_23 = date
+    if period == 'day':
+        today_23 = date
 
-    # Вчерашняя дата в 23:55
-    yesterday_23 = today_23 - timedelta(days=1)
+        # Вчерашняя дата в 23:55
+        yesterday_23 = today_23 - timedelta(days=1)
 
-    # Форматируем в требуемый формат (YYYYMMDDHHMMSS)
-    start_timestamp = yesterday_23.strftime('%Y%m%d%H%M%S')
-    end_timestamp = today_23.strftime('%Y%m%d%H%M%S')
+        # Форматируем в требуемый формат (YYYYMMDDHHMMSS)
+        start_timestamp = yesterday_23.strftime('%Y%m%d%H%M%S')
+        end_timestamp = today_23.strftime('%Y%m%d%H%M%S')
+        return f"createdAt>=<{start_timestamp},{end_timestamp}"
+    elif period == 'month':
+        today_23 = date
 
-    return f"createdAt>=<{start_timestamp},{end_timestamp}"
+        # дата в 23:55 месяц назад
+        month_ago_23 = today_23 - timedelta(days=21)
+
+        # Форматируем в требуемый формат (YYYYMMDDHHMMSS)
+        start_timestamp = month_ago_23.strftime('%Y%m%d%H%M%S')
+        end_timestamp = today_23.strftime('%Y%m%d%H%M%S')
+        return f"createdAt>=<{start_timestamp},{end_timestamp}"
+    return None

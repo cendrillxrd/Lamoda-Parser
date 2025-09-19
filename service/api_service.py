@@ -1,3 +1,5 @@
+from typing import Literal
+
 import pandas as pd
 
 from utils.log_helper import log_message
@@ -39,8 +41,8 @@ class APIService:
         return stocks_df
 
     @with_strategies(ReqOrdersStrategy, ConvOrderStrategy)
-    def get_orders(self, date_str: str = None) -> list:
-        orders = self.api_client.get_data(date_str=date_str)
+    def get_orders(self, date_str: str = None, period: Literal['day', 'month'] = None) -> list:
+        orders = self.api_client.get_data(date_str=date_str, period=period)
         orders_list = self.converter.convert(orders)
         return orders_list
 
@@ -56,7 +58,12 @@ class APIService:
         orders_info_df = self.converter.convert(orders_info)
         return orders_info_df
 
-    def get_orders_info_by_products(self, date_str: str = None) -> pd.DataFrame:
-        orders_id = self.get_orders(date_str=date_str)
+    def get_orders_info_by_products(self, date_str: str = None, period: Literal['day', 'month'] = None) -> pd.DataFrame:
+        orders_id = self.get_orders(date_str=date_str, period=period)
         orders_info_df = self.get_orders_info(orders_id)
         return orders_info_df
+
+    # def get_month_orders_info_by_products(self, date_str: str = None,  period: Literal['day', 'month'] = None) -> pd.DataFrame:
+    #     orders_id = self.get_orders(date_str=date_str, period=period)
+    #     orders_info_df = self.get_orders_info(orders_id)
+    #     return orders_info_df

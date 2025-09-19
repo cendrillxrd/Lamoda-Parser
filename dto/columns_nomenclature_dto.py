@@ -9,6 +9,8 @@ class ColumnsNomenclatureDTO:
     supplier_size: str = 'Размер'
     date: str = 'Дата сбора данных'
     quantity: str = 'Остаток'
+    on_the_way: str = 'В пути'
+    total_quantity: str = 'Общий остаток'
     color: str = 'Цвет'
     barcode: str = 'Баркод'
     name: str = 'Наименование'

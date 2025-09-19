@@ -62,6 +62,18 @@ BASE_COLUMNS_NAME = {'id': columns_main.id,
                      'supplier_size': columns_nomenclature.supplier_size,
                      'lamodaSubCategory': columns_nomenclature.lamoda_sub_category,
                      }
+
+ON_THE_WAY_SHIP_STATUS = ['Arrived to LME',
+                          'Confirmed',
+                          'Given to delivery'
+                          'In Delivery',
+                          'Left LME',
+                          'On shelf',
+                          'Ready for shipment',
+                          'Shipped',
+                          'Postponed',
+                          'Delivery incidence']
+
 FILE_PATH = 'C:/Users/Admin/Desktop/'
 ORDERS_FILE_NAME = 'Заказы'
 NOMENCLATURE_FILE_NAME = 'Номенклатура'
