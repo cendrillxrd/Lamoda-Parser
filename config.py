@@ -65,14 +65,30 @@ BASE_COLUMNS_NAME = {'id': columns_main.id,
 
 ON_THE_WAY_SHIP_STATUS = ['Arrived to LME',
                           'Confirmed',
-                          'Given to delivery'
+                          'Given to delivery',
                           'In Delivery',
                           'Left LME',
                           'On shelf',
                           'Ready for shipment',
                           'Shipped',
                           'Postponed',
-                          'Delivery incidence']
+                          'Delivery incidence',
+                          'Not delivered',
+                          'Not bought',
+                          'Rejected',
+                          'Delivered', ]
+
+ON_THE_WAY_GOODS_SHIPS_STATUS = ['Arrived to LM Express',
+                                 'Confirmed',
+                                 'Given to delivery',
+                                 'In delivery',
+                                 'Left LM Express',
+                                 'On shelf',
+                                 'Ready for shipment',
+                                 'Shipped',
+                                 'Not delivered',
+                                 'Not bought',
+                                 'Rejected']
 
 FILE_PATH = 'C:/Users/Admin/Desktop/'
 ORDERS_FILE_NAME = 'Заказы'

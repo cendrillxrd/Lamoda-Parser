@@ -4,7 +4,7 @@ import pandas as pd
 
 from dto.columns_main_dto import ColumnsMainDTO
 from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
-from config import ON_THE_WAY_SHIP_STATUS
+from config import ON_THE_WAY_SHIP_STATUS, ON_THE_WAY_GOODS_SHIPS_STATUS
 
 columns_main = ColumnsMainDTO()
 columns_nomenclature = ColumnsNomenclatureDTO()
@@ -45,11 +45,9 @@ class MergeByShipStrategy(MergeStrategies):
 
     def merge(self, nomenclature: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
         filtered_df = orders[(orders[columns_main.status].isin(ON_THE_WAY_SHIP_STATUS))
-                             & (orders[columns_main.status_product].isin(ON_THE_WAY_SHIP_STATUS))]
+                             & (orders[columns_main.status_product].isin(ON_THE_WAY_GOODS_SHIPS_STATUS))].copy()
         article_counts = filtered_df[columns_main.sku].value_counts().reset_index().copy()
         merged_df = pd.merge(nomenclature, article_counts, on=self.merge_on, how='left')
         merged_df.rename({'count': columns_nomenclature.on_the_way}, inplace=True, axis=1)
 
-        merged_df[columns_nomenclature.total_quantity] = (merged_df[columns_nomenclature.quantity]
-                                                          + merged_df[columns_nomenclature.on_the_way])
         return merged_df

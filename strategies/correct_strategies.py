@@ -46,28 +46,31 @@ class CorrNewInfoTableStrategy(CorrectorStrategy):
 
 class CorrNomenclatureTableStrategy(CorrectorStrategy):
     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        df = df[asdict(self.columns_nomenclature).values()].copy()
-        df[self.columns_nomenclature.created_at] = pd.to_datetime(
-            df[self.columns_nomenclature.created_at],
+        df_numeric = df.fillna(0).copy()
+        df_numeric[self.columns_nomenclature.total_quantity] = (df_numeric[self.columns_nomenclature.quantity]
+                                                                + df_numeric[self.columns_nomenclature.on_the_way])
+        df_correct = df_numeric[asdict(self.columns_nomenclature).values()].copy()
+        df_correct[self.columns_nomenclature.created_at] = pd.to_datetime(
+            df_correct[self.columns_nomenclature.created_at],
             format='mixed',
-            dayfirst=True,  # Важно! Первое число - день
+            dayfirst=True,
             errors='coerce'
         )
 
         # Дата для сравнения (01.09.2024)
         cutoff_date = pd.to_datetime('01.09.2024', format='%d.%m.%Y')
 
-        filtered_df = df[
-            (df[self.columns_nomenclature.created_at] >= cutoff_date) |  # ВСЕ данные позже 01.09.2024
-            (
-                    (df[self.columns_nomenclature.created_at] < cutoff_date) &  # данные ДО 01.09.2024
-                    (df[self.columns_nomenclature.quantity] != 0)  # но только с ненулевыми остатками
-            )
+        filtered_df = df_correct[
+            ((df_correct[self.columns_nomenclature.created_at] >= cutoff_date) |  # ВСЕ данные позже 01.09.2024
+             (
+                     (df_correct[self.columns_nomenclature.created_at] < cutoff_date) &  # данные ДО 01.09.2024
+                     (df_correct[self.columns_nomenclature.quantity] != 0)  # но только с ненулевыми остатками
+             )) &
+            (~df_correct[self.columns_nomenclature.status].isin(['photoshoot_pending', 'inactive']))
             ].copy()
+        columns = [self.columns_nomenclature.on_the_way, self.columns_nomenclature.total_quantity]
+
+        for column in columns:
+            filtered_df[column] = pd.to_numeric(filtered_df[column], downcast="integer")
 
         return filtered_df
-
-# class CorrShipStrategy(CorrectorStrategy):
-#     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-#         df = df[asdict(self.columns_nomenclature).values()].copy()
-#         return df

@@ -53,6 +53,7 @@ class ConvOrderStrategy(ConverterStrategy):
 class ConvOrderInfoStrategy(ConverterStrategy):
     def converting(self, data: list[dict]) -> pd.DataFrame:
         list_for_df = []
+
         for order in data:
             items = order['_embedded']['items']
             city = order['_embedded']['shippingAddress']['city']
@@ -79,10 +80,11 @@ class ConvOrderInfoStrategy(ConverterStrategy):
                 list_for_df.append(order_info)
 
         df = pd.DataFrame(list_for_df)
-
+        df.to_csv('new_orders.csv', index=False, encoding='cp1251')
         columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
         columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
         df.rename(columns_rename,
                   inplace=True,
                   axis=1)
+
         return df
