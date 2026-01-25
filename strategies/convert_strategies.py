@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from io import BytesIO
 from typing import Union
 
 import pandas as pd
@@ -6,6 +7,7 @@ from dto.columns_main_dto import ColumnsMainDTO
 from config import BASE_COLUMNS_NAME
 from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
 from utils.date_helper import get_today_date
+from utils.save_helper import correct_columns_name
 
 
 class ConverterStrategy(ABC):
@@ -30,6 +32,20 @@ class ConvNomenclaturesStrategy(ConverterStrategy):
         df[self.columns_nomenclature.date] = get_today_date()
 
         return df
+
+
+class ConvNomenclaturesPricesStrategy(ConverterStrategy):
+    def converting(self, data: dict) -> pd.DataFrame:
+        df = pd.DataFrame(data)
+        assigned_df = df.assign(price=df['_embedded'].apply(lambda x: x['sellValues'][0]['price']))
+        columns_name = [column for column in assigned_df.columns if column in BASE_COLUMNS_NAME]
+        columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
+        assigned_df.rename(columns_rename,
+                           inplace=True,
+                           axis=1)
+        df_prices = assigned_df[[self.columns_nomenclature.supplier_sku, self.columns_nomenclature.price]].copy()
+
+        return df_prices
 
 
 class ConvStockStrategy(ConverterStrategy):
@@ -88,3 +104,18 @@ class ConvOrderInfoStrategy(ConverterStrategy):
                   axis=1)
 
         return df
+
+
+class ConvMEDCollections(ConverterStrategy):
+    def converting(self, data, **kwargs) -> pd.DataFrame:
+        """Преобразует данные о коллекциях на меде в DataFrame"""
+        med_collections_df = pd.read_excel(BytesIO(data.content))
+
+        med_collections_df = correct_columns_name(med_collections_df)
+
+        med_collections_df_without_unnecessary_columns = med_collections_df[
+            [self.columns_nomenclature.supplier_parent_sku, self.columns_nomenclature.collection]]
+        med_collections_df_without_unnecessary_columns.drop_duplicates(
+            subset=self.columns_nomenclature.supplier_parent_sku, inplace=True)
+        med_collections_df_without_unnecessary_columns.reset_index(inplace=True, drop=True)
+        return med_collections_df_without_unnecessary_columns

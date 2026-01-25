@@ -25,6 +25,42 @@ class MergeOrdersStocksStrategy(MergeStrategies):
         return merged_df
 
 
+class MergeWithPricesStrategy(MergeStrategies):
+    def __init__(self, merge_on: str = columns_nomenclature.supplier_sku):
+        self.merge_on = merge_on
+
+    def merge(self, nomenclature: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
+        nomenclature[self.merge_on] = nomenclature[self.merge_on].astype(str)
+        prices[self.merge_on] = prices[self.merge_on].astype(str)
+        merged_df = pd.merge(nomenclature, prices, on=self.merge_on, how='left')
+        return merged_df
+
+
+class MergeCollections(MergeStrategies):
+    def __init__(self, merge_on: str = columns_nomenclature.supplier_parent_sku):
+        self.merge_on = merge_on
+
+    def merge(self, df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
+        merged_df = pd.concat([df1, df2], ignore_index=True)
+        return merged_df
+
+
+class MergeLamodaCollections(MergeStrategies):
+    def __init__(self, merge_on: str = columns_nomenclature.supplier_parent_sku):
+        self.merge_on = merge_on
+
+    def merge(self, df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
+        # Паттерн для всех указанных вариантов
+        pattern = r'_(\d{2}|S|L|M|M-L|3XL|XS|XXL|XS-S)$'
+        df1[columns_nomenclature.supplier_parent_sku] = df1[
+            columns_nomenclature.supplier_parent_sku].str.replace(
+            pattern, '', regex=True)
+        df1[self.merge_on] = df1[self.merge_on].astype(str)
+        df2[self.merge_on] = df2[self.merge_on].astype(str)
+        merged_df = pd.merge(df1, df2, on=self.merge_on, how='left')
+        return merged_df
+
+
 class MergeNewInfoStrategy(MergeStrategies):
     def __init__(self, merge_on: tuple[str] = (columns_main.id, columns_main.sku, columns_main.created_at)):
         self.merge_on = merge_on
