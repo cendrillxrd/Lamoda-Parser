@@ -24,13 +24,13 @@ def main():
     result = info_redactor.redact_info(info)
 
     save_info(result)
-    #
-    # file_path = f'{FILE_PATH}{ORDERS_FILE_NAME}.csv'
-    # if not is_csv_empty(file_path):
-    #     updater = InfoUpdater(file_path)
-    #     updater.update_info()
-    # else:
-    #     log_message('app', f'Обновление данных не произошло', 'INFO')
+
+    file_path = f'{FILE_PATH}{ORDERS_FILE_NAME}.csv'
+    if not is_csv_empty(file_path):
+        updater = InfoUpdater(file_path)
+        updater.update_info()
+    else:
+        log_message('app', f'Обновление данных не произошло', 'INFO')
 
 
 if __name__ == '__main__':

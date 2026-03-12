@@ -13,15 +13,19 @@ class InfoRedactor:
         self.columns = ColumnsMainDTO()
 
     def redact_info(self, info: InfoDTO) -> dict:
-        # orders_stocks_by_day = self.red.merge_orders_with_stock(info.orders_day, info.stock)
+        orders_stocks_by_day = self.red.merge_orders_with_stock(info.orders_day, info.stock)
         nomenclature = self.red.correct_nomenclatures(info.nomenclature, info.orders_month)
         nom_prices = self.red.merge_with_prices(nomenclature, info.prices_nomenclature)
-        collections_merged = self.red.merge_collections(info.collection1, info.collection2)
-        nomenclature_collections = self.red.merge_with_med_collections(nom_prices, collections_merged)
-        return {NOMENCLATURE_FILE_NAME: nomenclature_collections}
-        # return {ORDERS_FILE_NAME: orders_stocks_by_day,
-        #         NOMENCLATURE_FILE_NAME: nomenclature,
-        #         NOMENCLATURE_DAY_FILE_NAME: nomenclature_collections}
+        collections_merged_1_2 = self.red.merge_collections(info.collection1, info.collection2)
+        collections_merged_1_2_3 = self.red.merge_collections(collections_merged_1_2, info.collection3)
+        collections_merged_1_2_3_4 = self.red.merge_collections(collections_merged_1_2_3, info.collection4)
+        nomenclature_collections = self.red.merge_nomenclature_with_med_collections(nom_prices,
+                                                                                    collections_merged_1_2_3_4)
+        orders_stocks_by_day_collections = self.red.merge_orders_with_med_collections(orders_stocks_by_day,
+                                                                                      collections_merged_1_2_3_4)
+        return {ORDERS_FILE_NAME: orders_stocks_by_day_collections,
+                NOMENCLATURE_FILE_NAME: nomenclature_collections,
+                NOMENCLATURE_DAY_FILE_NAME: nomenclature_collections}
 
     def reduct_update_info(self, main_table: pd.DataFrame, info: InfoUpdateDTO) -> pd.DataFrame:
         columns_to_update = (
