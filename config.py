@@ -20,10 +20,10 @@ BASE_URLS = {
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
-LIMIT_NOMENCLATURE = 1000
+LIMIT_NOMENCLATURE = 25
 LIMIT_STOCK = 1000
 LIMIT_ORDER = 1000
-TIME_SLEEP_NOMENCLATURES = 20
+TIME_SLEEP_NOMENCLATURES = 0.5
 TIME_SLEEP_STOCK = 20
 TIME_SLEEP_ORDER = 20
 TIME_SLEEP_ORDER_INFO = 0.1
@@ -80,7 +80,8 @@ ON_THE_WAY_SHIP_STATUS = ['Arrived to LME',
                           'Not delivered',
                           'Not bought',
                           'Rejected',
-                          'Delivered', ]
+                          'Delivered',
+                          ]
 
 ON_THE_WAY_GOODS_SHIPS_STATUS = ['Arrived to LM Express',
                                  'Confirmed',

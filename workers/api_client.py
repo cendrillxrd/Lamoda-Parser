@@ -46,7 +46,7 @@ class APIClient:
                 url=url,
                 params=params,
                 json=payload,
-                timeout=30
+                timeout=60
             )
             try:
                 response.raise_for_status()

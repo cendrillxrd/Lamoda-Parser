@@ -31,7 +31,7 @@ class CorrMainTableStrategy(CorrectorStrategy):
         return df
 
 
-class CorrCollections(CorrectorStrategy):
+class CorrCollectionsNomenclature(CorrectorStrategy):
     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df.fillna(0, inplace=True)  # заменяем пустоту на нули
         df_correct = df[asdict(self.columns_nomenclature).values()].copy()
@@ -54,6 +54,11 @@ class CorrNewInfoTableStrategy(CorrectorStrategy):
         for column in columns_to_update:
             df[column] = df[column + '_new'].combine_first(df[column])
             df.drop(column + '_new', axis=1, inplace=True)
+
+        # Удалить дубликаты после слияния
+        df = df.drop_duplicates(subset=(self.columns_main.id,
+                                        self.columns_main.sku,
+                                        self.columns_main.created_at), keep='first')
         return df
 
 

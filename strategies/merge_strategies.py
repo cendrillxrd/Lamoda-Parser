@@ -61,6 +61,49 @@ class MergeLamodaCollections(MergeStrategies):
         return merged_df
 
 
+class MergeOrdersCollections(MergeStrategies):
+    def __init__(self, merge_on: str = columns_nomenclature.supplier_parent_sku):
+        self.merge_on = merge_on
+
+    def merge(self, df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
+        result = self.fuzzy_merge(df1, df2, columns_main.sku, self.merge_on)
+        return result
+
+    @staticmethod
+    def fuzzy_merge(df1, df2, left_on, right_on):
+        # Преобразуем артикулы к строке и нормализуем
+        df1_arts = df1[left_on].astype(str).str.strip().str.lower().fillna("").tolist()
+        df2_arts = df2[right_on].astype(str).str.strip().str.lower().fillna("").tolist()
+        df2_data = df2.to_dict('records')
+
+        results = []
+
+        for i, art1 in enumerate(df1_arts):
+            matched_idx = -1
+
+            # Поиск совпадения
+            for j, art2 in enumerate(df2_arts):
+                if art2 and art1 and art2 in art1:
+                    matched_idx = j
+                    break
+
+            # Создание результирующей строки
+            if matched_idx >= 0:
+                # Объединяем с данными из df2
+                result_row = {**df1.iloc[i].to_dict(), **df2_data[matched_idx]}
+            else:
+                # Только данные из df1
+                result_row = df1.iloc[i].to_dict()
+                # Добавляем None для колонок из df2
+                for col in df2.columns:
+                    if col != right_on:
+                        result_row[col] = None
+
+            results.append(result_row)
+
+        return pd.DataFrame(results)
+
+
 class MergeNewInfoStrategy(MergeStrategies):
     def __init__(self, merge_on: tuple[str] = (columns_main.id, columns_main.sku, columns_main.created_at)):
         self.merge_on = merge_on
