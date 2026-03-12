@@ -74,3 +74,4 @@ class RedactionService:
     def merge_collections(self, col1_df: pd.DataFrame, col2_df: pd.DataFrame) -> pd.DataFrame:
         collections_merged = self.merger.merge(col1_df, col2_df)
         return collections_merged
+

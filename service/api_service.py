@@ -8,15 +8,16 @@ from workers.converter import Converter
 from strategies.convert_strategies import (ConvNomenclaturesStrategy, ConvStockStrategy,
                                            ConvOrderStrategy, ConvOrderInfoStrategy, ConvMEDCollections,
                                            ConvNomenclaturesPricesStrategy)
-from strategies.request_strategies import (ReqNomenclaturePricesStrategy, ReqStockStrategy,
+from strategies.request_strategies import (ReqNomenclatureStrategy, ReqStockStrategy,
                                            ReqOrdersStrategy, ReqOrderInfoStrategy, ReqMEDCollectionsFirst,
-                                           ReqMEDCollectionsSecond, ReqNomenclatureStrategy)
+                                           ReqMEDCollectionsSecond, ReqNomenclaturePricesStrategy,
+                                           ReqMEDCollectionsThird, ReqMEDCollectionsFourth)
 
 
-def with_strategies(strategy_cls, converter_strategy_cls):
+def with_strategies(wb_strategy_cls, converter_strategy_cls):
     def decorator(method):
         def wrapper(self, *args, **kwargs):
-            self.api_client.set_strategy(strategy_cls())
+            self.api_client.set_strategy(wb_strategy_cls())
             self.converter.set_strategy(converter_strategy_cls())
             return method(self, *args, **kwargs)
 
@@ -36,12 +37,6 @@ class APIService:
         nomenclatures_df = self.converter.convert(nomenclatures)
         return nomenclatures_df
 
-    @with_strategies(ReqNomenclaturePricesStrategy, ConvNomenclaturesPricesStrategy)
-    def get_nomenclatures_prices(self) -> pd.DataFrame:
-        nomenclatures = self.api_client.get_data()
-        nomenclatures_df = self.converter.convert(nomenclatures)
-        return nomenclatures_df
-
     @with_strategies(ReqStockStrategy, ConvStockStrategy)
     def get_stocks(self) -> pd.DataFrame:
         stocks = self.api_client.get_data()
@@ -53,6 +48,12 @@ class APIService:
         orders = self.api_client.get_data(date_str=date_str, period=period)
         orders_list = self.converter.convert(orders)
         return orders_list
+
+    @with_strategies(ReqNomenclaturePricesStrategy, ConvNomenclaturesPricesStrategy)
+    def get_nomenclatures_prices(self) -> pd.DataFrame:
+        nomenclatures = self.api_client.get_data()
+        nomenclatures_df = self.converter.convert(nomenclatures)
+        return nomenclatures_df
 
     @with_strategies(ReqOrderInfoStrategy, ConvOrderInfoStrategy)
     def get_orders_info(self, order_ids: list) -> pd.DataFrame:
@@ -71,7 +72,6 @@ class APIService:
         orders_info_df = self.get_orders_info(orders_id)
         return orders_info_df
 
-
 def with_strategies_med(req_strategy_cls=None, converter_strategy_cls=None):
     def decorator(method):
         def wrapper(self, *args, **kwargs):
@@ -85,7 +85,6 @@ def with_strategies_med(req_strategy_cls=None, converter_strategy_cls=None):
 
     return decorator
 
-
 class MedService:
     def __init__(self):
         self.med_api_client = MedClient()
@@ -97,8 +96,22 @@ class MedService:
         med_collections_df = self.converter.convert(med_collections_csv)
         return med_collections_df
 
+
+
     @with_strategies_med(req_strategy_cls=ReqMEDCollectionsSecond, converter_strategy_cls=ConvMEDCollections)
     def get_med_collections_second(self) -> pd.DataFrame:
+        med_collections_csv = self.med_api_client.get_data()
+        med_collections_df = self.converter.convert(med_collections_csv)
+        return med_collections_df
+
+    @with_strategies_med(req_strategy_cls=ReqMEDCollectionsThird, converter_strategy_cls=ConvMEDCollections)
+    def get_med_collections_third(self) -> pd.DataFrame:
+        med_collections_csv = self.med_api_client.get_data()
+        med_collections_df = self.converter.convert(med_collections_csv)
+        return med_collections_df
+
+    @with_strategies_med(req_strategy_cls=ReqMEDCollectionsFourth, converter_strategy_cls=ConvMEDCollections)
+    def get_med_collections_fourth(self) -> pd.DataFrame:
         med_collections_csv = self.med_api_client.get_data()
         med_collections_df = self.converter.convert(med_collections_csv)
         return med_collections_df

@@ -29,7 +29,6 @@ def is_csv_empty(file_path: str) -> bool:
     df = pd.read_csv(file_path, encoding='cp1251')
     return df.empty
 
-
 def correct_columns_name(df: pd.DataFrame) -> pd.DataFrame:
     columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
 

@@ -92,3 +92,15 @@ class CorrNomenclatureTableStrategy(CorrectorStrategy):
             filtered_df[column] = pd.to_numeric(filtered_df[column], downcast="integer")
 
         return filtered_df
+
+class CorrCollectionsNomenclature(CorrectorStrategy):
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        df.fillna(0, inplace=True)  # заменяем пустоту на нули
+        df_correct = df[asdict(self.columns_nomenclature).values()].copy()
+        return df_correct
+
+class CorrPrices(CorrectorStrategy):
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        df.fillna(0, inplace=True)  # заменяем пустоту на нули
+        return df
+

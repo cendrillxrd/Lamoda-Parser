@@ -10,6 +10,7 @@ from utils.date_helper import get_today_date
 from utils.save_helper import correct_columns_name
 
 
+
 class ConverterStrategy(ABC):
     def __init__(self):
         self.columns_main = ColumnsMainDTO()
@@ -32,20 +33,6 @@ class ConvNomenclaturesStrategy(ConverterStrategy):
         df[self.columns_nomenclature.date] = get_today_date()
 
         return df
-
-
-class ConvNomenclaturesPricesStrategy(ConverterStrategy):
-    def converting(self, data: dict) -> pd.DataFrame:
-        df = pd.DataFrame(data)
-        assigned_df = df.assign(price=df['_embedded'].apply(lambda x: x['sellValues'][0]['price']))
-        columns_name = [column for column in assigned_df.columns if column in BASE_COLUMNS_NAME]
-        columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
-        assigned_df.rename(columns_rename,
-                           inplace=True,
-                           axis=1)
-        df_prices = assigned_df[[self.columns_nomenclature.supplier_sku, self.columns_nomenclature.price]].copy()
-
-        return df_prices
 
 
 class ConvStockStrategy(ConverterStrategy):
@@ -96,7 +83,7 @@ class ConvOrderInfoStrategy(ConverterStrategy):
                 list_for_df.append(order_info)
 
         df = pd.DataFrame(list_for_df)
-        df.to_csv('new_orders.csv', index=False, encoding='cp1251')
+
         columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
         columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
         df.rename(columns_rename,
@@ -104,7 +91,6 @@ class ConvOrderInfoStrategy(ConverterStrategy):
                   axis=1)
 
         return df
-
 
 class ConvMEDCollections(ConverterStrategy):
     def converting(self, data, **kwargs) -> pd.DataFrame:
@@ -119,3 +105,16 @@ class ConvMEDCollections(ConverterStrategy):
             subset=self.columns_nomenclature.supplier_parent_sku, inplace=True)
         med_collections_df_without_unnecessary_columns.reset_index(inplace=True, drop=True)
         return med_collections_df_without_unnecessary_columns
+
+class ConvNomenclaturesPricesStrategy(ConverterStrategy):
+    def converting(self, data: dict) -> pd.DataFrame:
+        df = pd.DataFrame(data)
+        assigned_df = df.assign(price=df['_embedded'].apply(lambda x: x['sellValues'][0]['price']))
+        columns_name = [column for column in assigned_df.columns if column in BASE_COLUMNS_NAME]
+        columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
+        assigned_df.rename(columns_rename,
+                           inplace=True,
+                           axis=1)
+        df_prices = assigned_df[[self.columns_nomenclature.supplier_sku, self.columns_nomenclature.price]].copy()
+
+        return df_prices

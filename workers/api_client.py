@@ -99,7 +99,6 @@ class APIClient:
                                      endpoint=endpoint)
         return response['access_token']
 
-
 class MedClient:
     def __init__(self):
         self.base_url = BASE_URLS

@@ -15,6 +15,8 @@ BASE_URLS = {
     'demo': 'https://api-demo-b2b.lamoda.ru',
     'med_collections_1': 'https://med-online.ru/upload/acrit.exportproplus/file.OZON.xlsx?1740656479',
     'med_collections_2': 'https://med-online.ru/upload/acrit.exportproplus/file.OZONdop.xlsx?1744707024',
+    'med_collections_3': 'https://med-online.ru/upload/acrit.exportproplus/file.match-bikk.xlsx?1769676747',
+    'med_collections_4': 'https://med-online.ru/upload/acrit.exportproplus/file.Strell-Truss-Redp.xlsx?1772624157',
 }
 
 CLIENT_ID = os.getenv('CLIENT_ID')
@@ -95,7 +97,7 @@ ON_THE_WAY_GOODS_SHIPS_STATUS = ['Arrived to LM Express',
                                  'Not bought',
                                  'Rejected']
 
-FILE_PATH = 'C:/Users/Admin/Desktop/'
+FILE_PATH = 'C:/Users/user/Desktop/LAMODA DATA/'
 ORDERS_FILE_NAME = 'Заказы'
 NOMENCLATURE_FILE_NAME = 'Номенклатура'
 NOMENCLATURE_DAY_FILE_NAME = 'Последняя номенклатура'
