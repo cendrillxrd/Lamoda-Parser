@@ -31,6 +31,19 @@ class CorrMainTableStrategy(CorrectorStrategy):
         return df
 
 
+class CorrCollections(CorrectorStrategy):
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        df.fillna(0, inplace=True)  # заменяем пустоту на нули
+        df_correct = df[asdict(self.columns_nomenclature).values()].copy()
+        return df_correct
+
+
+class CorrPrices(CorrectorStrategy):
+    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        df.fillna(0, inplace=True)  # заменяем пустоту на нули
+        return df
+
+
 class CorrNewInfoTableStrategy(CorrectorStrategy):
     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         columns_to_update = [
