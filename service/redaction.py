@@ -2,8 +2,10 @@ import logging
 
 import pandas as pd
 
-from strategies.correct_strategies import CorrMainTableStrategy, CorrNomenclatureTableStrategy, CorrNewInfoTableStrategy
-from strategies.merge_strategies import MergeOrdersStocksStrategy, MergeNewInfoStrategy, MergeByShipStrategy
+from strategies.correct_strategies import CorrMainTableStrategy, CorrNomenclatureTableStrategy, \
+    CorrNewInfoTableStrategy, CorrCollectionsNomenclature, CorrPrices
+from strategies.merge_strategies import MergeOrdersStocksStrategy, MergeNewInfoStrategy, MergeByShipStrategy, \
+    MergeLamodaCollections, MergeCollections, MergeWithPricesStrategy, MergeOrdersCollections
 from workers.corrector import Corrector
 from workers.merger import Merger
 
@@ -49,3 +51,27 @@ class RedactionService:
         merged_df = self.merger.merge(main_tabel, new_info, columns_to_update)
         corrected_df = self.corrector.correct(merged_df)
         return corrected_df
+
+    @with_strategies(merge_strategy_cls=MergeWithPricesStrategy, correcter_strategy_cls=CorrPrices)
+    def merge_with_prices(self, nomenclature: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
+        prices_merged = self.merger.merge(nomenclature, prices)
+        prices_corrected = self.corrector.correct(prices_merged)
+        return prices_corrected
+
+    @with_strategies(merge_strategy_cls=MergeLamodaCollections, correcter_strategy_cls=CorrCollectionsNomenclature)
+    def merge_nomenclature_with_med_collections(self, lamoda_df: pd.DataFrame, med_df: pd.DataFrame) -> pd.DataFrame:
+        collections_merged = self.merger.merge(lamoda_df, med_df)
+        collections_corrected = self.corrector.correct(collections_merged)
+        return collections_corrected
+
+    @with_strategies(merge_strategy_cls=MergeOrdersCollections)
+    def merge_orders_with_med_collections(self, lamoda_df: pd.DataFrame, med_df: pd.DataFrame) -> pd.DataFrame:
+        collections_merged = self.merger.merge(lamoda_df, med_df)
+        # collections_corrected = self.corrector.correct(collections_merged)
+        return collections_merged
+
+    @with_strategies(merge_strategy_cls=MergeCollections)
+    def merge_collections(self, col1_df: pd.DataFrame, col2_df: pd.DataFrame) -> pd.DataFrame:
+        collections_merged = self.merger.merge(col1_df, col2_df)
+        return collections_merged
+

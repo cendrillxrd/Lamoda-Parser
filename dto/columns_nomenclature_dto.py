@@ -19,3 +19,5 @@ class ColumnsNomenclatureDTO:
     updated_at: str = 'Дата изменения'
     status: str = 'Статус'
     is_sellable: str = 'Продается?'
+    collection: str = 'Коллекция'
+    price: str = 'Цена'

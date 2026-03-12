@@ -125,3 +125,65 @@ class ReqStockStrategy(RequestStrategy):
                                            endpoint=self.endpoint)
             result.extend(response['_embedded']['stockStates'])
         return result
+
+class ReqMEDCollectionsFirst(RequestStrategy):
+    url_key = "med_collections_1"
+
+    def get_info(self, client: 'Client', **kwargs) -> list[dict]:
+        log_message('app', 'Получение первого файла коллекций', 'INFO')
+        response = client.make_request(url_key=self.url_key)
+        return response
+
+class ReqMEDCollectionsThird(RequestStrategy):
+    url_key = "med_collections_3"
+
+    def get_info(self, client: 'Client', **kwargs) -> list[dict]:
+        log_message('app', 'Получение третьего файла коллекций', 'INFO')
+        response = client.make_request(url_key=self.url_key)
+        return response
+
+
+class ReqMEDCollectionsFourth(RequestStrategy):
+    url_key = "med_collections_4"
+
+    def get_info(self, client: 'Client', **kwargs) -> list[dict]:
+        log_message('app', 'Получение четвертого файла коллекций', 'INFO')
+        response = client.make_request(url_key=self.url_key)
+        return response
+
+class ReqNomenclaturePricesStrategy(RequestStrategy):
+    endpoint = '/api/v1/nomenclature/sell-values'
+    url_key = 'live'
+    nomenclature_dto = NomenclatureDTO()
+
+    def get_info(self, client: 'APIClient', **kwargs) -> list[dict]:
+        log_message('app', 'Запрос номенклатуры по ценам', 'INFO')
+        result = []
+        params = asdict(self.nomenclature_dto)
+        response = client.make_request(method='GET',
+                                       url_key=self.url_key,
+                                       params=params,
+                                       endpoint=self.endpoint)
+        result.extend(response['_embedded']['nomenclatures'])
+        pages = response['pages']
+        log_message('app', f'Всего страниц: {pages}', 'DEBUG')
+        log_message('app', f'Загружено страниц: {self.nomenclature_dto.page}', 'DEBUG')
+
+        for page in range(self.nomenclature_dto.page + 1, pages + 1):
+            time.sleep(TIME_SLEEP_NOMENCLATURES)
+            params['page'] = page
+            log_message('app', f'Загружено страниц: {page}', 'DEBUG')
+            response = client.make_request(method='GET',
+                                           url_key=self.url_key,
+                                           params=params,
+                                           endpoint=self.endpoint)
+            result.extend(response['_embedded']['nomenclatures'])
+        return result
+
+class ReqMEDCollectionsSecond(RequestStrategy):
+    url_key = "med_collections_2"
+
+    def get_info(self, client: 'Client', **kwargs) -> list[dict]:
+        log_message('app', 'Получение второго файла коллекций', 'INFO')
+        response = client.make_request(url_key=self.url_key)
+        return response

@@ -13,15 +13,19 @@ columns_nomenclature = ColumnsNomenclatureDTO()
 BASE_URLS = {
     'live': 'https://api-b2b.lamoda.ru',
     'demo': 'https://api-demo-b2b.lamoda.ru',
+    'med_collections_1': 'https://med-online.ru/upload/acrit.exportproplus/file.OZON.xlsx?1740656479',
+    'med_collections_2': 'https://med-online.ru/upload/acrit.exportproplus/file.OZONdop.xlsx?1744707024',
+    'med_collections_3': 'https://med-online.ru/upload/acrit.exportproplus/file.match-bikk.xlsx?1769676747',
+    'med_collections_4': 'https://med-online.ru/upload/acrit.exportproplus/file.Strell-Truss-Redp.xlsx?1772624157',
 }
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
-LIMIT_NOMENCLATURE = 1000
+LIMIT_NOMENCLATURE = 25
 LIMIT_STOCK = 1000
 LIMIT_ORDER = 1000
-TIME_SLEEP_NOMENCLATURES = 20
+TIME_SLEEP_NOMENCLATURES = 0.5
 TIME_SLEEP_STOCK = 20
 TIME_SLEEP_ORDER = 20
 TIME_SLEEP_ORDER_INFO = 0.1
@@ -61,6 +65,8 @@ BASE_COLUMNS_NAME = {'id': columns_main.id,
                      'supplierParentSku': columns_nomenclature.supplier_parent_sku,
                      'supplier_size': columns_nomenclature.supplier_size,
                      'lamodaSubCategory': columns_nomenclature.lamoda_sub_category,
+                     'Артикул': columns_nomenclature.supplier_parent_sku,
+                     'price': columns_nomenclature.price,
                      }
 
 ON_THE_WAY_SHIP_STATUS = ['Arrived to LME',
@@ -90,9 +96,10 @@ ON_THE_WAY_GOODS_SHIPS_STATUS = ['Arrived to LM Express',
                                  'Not bought',
                                  'Rejected']
 
-FILE_PATH = 'C:/Users/Admin/Desktop/'
+FILE_PATH = 'C:/Users/user/Desktop/LAMODA DATA/'
 ORDERS_FILE_NAME = 'Заказы'
 NOMENCLATURE_FILE_NAME = 'Номенклатура'
+NOMENCLATURE_DAY_FILE_NAME = 'Последняя номенклатура'
 
 DEBUG = os.getenv('DEBUG')
 HOME_DIR = Path(__file__).resolve().parent.parent

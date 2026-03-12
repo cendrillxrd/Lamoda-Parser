@@ -46,7 +46,7 @@ class APIClient:
                 url=url,
                 params=params,
                 json=payload,
-                timeout=30
+                timeout=60
             )
             try:
                 response.raise_for_status()
@@ -98,3 +98,22 @@ class APIClient:
                                      params=params,
                                      endpoint=endpoint)
         return response['access_token']
+
+class MedClient:
+    def __init__(self):
+        self.base_url = BASE_URLS
+        self.__strategy = None
+
+    def make_request(self, url_key: Literal['med_collections_1', 'med_collections_2'], login: str = None,
+                     password: str = None, ):
+        url = f'{self.base_url[url_key]}'
+        response = requests.get(url, auth=(login, password))
+        return response
+
+    def set_strategy(self, strategy: RequestStrategy):
+        self.__strategy = strategy
+
+    def get_data(self, **kwargs) -> list[dict]:
+        if self.__strategy is None:
+            raise ValueError('Стратегия не выбрана, установите стратегию с помощью set_strategy')
+        return self.__strategy.get_info(self, **kwargs)

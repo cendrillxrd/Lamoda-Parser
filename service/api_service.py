@@ -3,12 +3,15 @@ from typing import Literal
 import pandas as pd
 
 from utils.log_helper import log_message
-from workers.api_client import APIClient
+from workers.api_client import APIClient, MedClient
 from workers.converter import Converter
 from strategies.convert_strategies import (ConvNomenclaturesStrategy, ConvStockStrategy,
-                                           ConvOrderStrategy, ConvOrderInfoStrategy)
+                                           ConvOrderStrategy, ConvOrderInfoStrategy, ConvMEDCollections,
+                                           ConvNomenclaturesPricesStrategy)
 from strategies.request_strategies import (ReqNomenclatureStrategy, ReqStockStrategy,
-                                           ReqOrdersStrategy, ReqOrderInfoStrategy)
+                                           ReqOrdersStrategy, ReqOrderInfoStrategy, ReqMEDCollectionsFirst,
+                                           ReqMEDCollectionsSecond, ReqNomenclaturePricesStrategy,
+                                           ReqMEDCollectionsThird, ReqMEDCollectionsFourth)
 
 
 def with_strategies(wb_strategy_cls, converter_strategy_cls):
@@ -46,6 +49,12 @@ class APIService:
         orders_list = self.converter.convert(orders)
         return orders_list
 
+    @with_strategies(ReqNomenclaturePricesStrategy, ConvNomenclaturesPricesStrategy)
+    def get_nomenclatures_prices(self) -> pd.DataFrame:
+        nomenclatures = self.api_client.get_data()
+        nomenclatures_df = self.converter.convert(nomenclatures)
+        return nomenclatures_df
+
     @with_strategies(ReqOrderInfoStrategy, ConvOrderInfoStrategy)
     def get_orders_info(self, order_ids: list) -> pd.DataFrame:
         orders_info = []
@@ -63,7 +72,46 @@ class APIService:
         orders_info_df = self.get_orders_info(orders_id)
         return orders_info_df
 
-    # def get_month_orders_info_by_products(self, date_str: str = None,  period: Literal['day', 'month'] = None) -> pd.DataFrame:
-    #     orders_id = self.get_orders(date_str=date_str, period=period)
-    #     orders_info_df = self.get_orders_info(orders_id)
-    #     return orders_info_df
+def with_strategies_med(req_strategy_cls=None, converter_strategy_cls=None):
+    def decorator(method):
+        def wrapper(self, *args, **kwargs):
+            if req_strategy_cls is not None:
+                self.med_api_client.set_strategy(req_strategy_cls())
+            if converter_strategy_cls is not None:
+                self.converter.set_strategy(converter_strategy_cls())
+            return method(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+class MedService:
+    def __init__(self):
+        self.med_api_client = MedClient()
+        self.converter = Converter()
+
+    @with_strategies_med(req_strategy_cls=ReqMEDCollectionsFirst, converter_strategy_cls=ConvMEDCollections)
+    def get_med_collections_first(self) -> pd.DataFrame:
+        med_collections_csv = self.med_api_client.get_data()
+        med_collections_df = self.converter.convert(med_collections_csv)
+        return med_collections_df
+
+
+
+    @with_strategies_med(req_strategy_cls=ReqMEDCollectionsSecond, converter_strategy_cls=ConvMEDCollections)
+    def get_med_collections_second(self) -> pd.DataFrame:
+        med_collections_csv = self.med_api_client.get_data()
+        med_collections_df = self.converter.convert(med_collections_csv)
+        return med_collections_df
+
+    @with_strategies_med(req_strategy_cls=ReqMEDCollectionsThird, converter_strategy_cls=ConvMEDCollections)
+    def get_med_collections_third(self) -> pd.DataFrame:
+        med_collections_csv = self.med_api_client.get_data()
+        med_collections_df = self.converter.convert(med_collections_csv)
+        return med_collections_df
+
+    @with_strategies_med(req_strategy_cls=ReqMEDCollectionsFourth, converter_strategy_cls=ConvMEDCollections)
+    def get_med_collections_fourth(self) -> pd.DataFrame:
+        med_collections_csv = self.med_api_client.get_data()
+        med_collections_df = self.converter.convert(med_collections_csv)
+        return med_collections_df
