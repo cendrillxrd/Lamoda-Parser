@@ -1,7 +1,9 @@
-from dto.indo_update_dto import InfoUpdateDTO
+import pandas as pd
+
+from api_key import ApiKeyManager
+from config import FILE_PATH, ORDERS_FILE_NAME
 from dto.info_dto import InfoDTO
 from service.api_service import APIService, MedService
-from api_key import ApiKeyManager
 from utils.date_helper import get_today_date
 
 today = get_today_date()
@@ -9,31 +11,25 @@ today = get_today_date()
 
 class InfoCollector:
     def __init__(self):
-        self.api = ApiKeyManager()
-        self.api = APIService(self.api)
+        self.api_key = ApiKeyManager()
+        self.api = APIService(self.api_key)
         self.med = MedService()
 
     def collect_info(self) -> InfoDTO:
-        prices_nomenclature = self.api.get_nomenclatures_prices()
-        nomenclature = self.api.get_nomenclatures()
-        orders_day = self.api.get_orders_info_by_products()
+        orders_data_from_file = pd.read_csv(f'{FILE_PATH}/{ORDERS_FILE_NAME}.csv', encoding='cp1251')
+        nomenclature = self.api.get_all_nomenclatures()
         orders_month = self.api.get_orders_info_by_products(date_str=today, period='month')
-        stock = self.api.get_stocks()
         collections1 = self.med.get_med_collections_first()
         collections2 = self.med.get_med_collections_second()
+        collections3 = self.med.get_med_collections_third()
+        collections4 = self.med.get_med_collections_fourth()
 
         return InfoDTO(
-            orders_day=orders_day,
             orders_month=orders_month,
-            stock=stock,
             nomenclature=nomenclature,
             collection1=collections1,
             collection2=collections2,
-            prices_nomenclature=prices_nomenclature
-        )
-
-    def collect_info_for_update(self, date_str: str) -> InfoUpdateDTO:
-        orders = self.api.get_orders_info_by_products(date_str=date_str, period='day')
-        return InfoUpdateDTO(
-            orders=orders,
+            collection3=collections3,
+            collection4=collections4,
+            orders_data_from_file=orders_data_from_file
         )

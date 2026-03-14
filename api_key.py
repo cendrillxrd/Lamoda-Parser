@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from typing import Optional
+
 from dotenv import load_dotenv, set_key
 
 from workers.api_client import APIClient

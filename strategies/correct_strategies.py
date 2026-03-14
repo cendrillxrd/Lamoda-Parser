@@ -17,31 +17,11 @@ class CorrectorStrategy(ABC):
         pass
 
 
-class CorrMainTableStrategy(CorrectorStrategy):
-    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        df = df.fillna(0).infer_objects(copy=False)  # Сначала заполняем пропуски
-        df = df[asdict(self.columns_main).values()].copy()
-        columns = [self.columns_main.stock, self.columns_main.total_discount, self.columns_main.sale_price,
-                   self.columns_main.paid_price,
-                   self.columns_main.base_price, self.columns_main.coupon_discount, self.columns_main.loyalty_discount,
-                   self.columns_main.partner_agreed_price, self.columns_main.partner_agreed_discount,
-                   self.columns_main.other_discounts]
-        for column in columns:
-            df[column] = pd.to_numeric(df[column], downcast="integer")
-        return df
-
-
 class CorrCollectionsNomenclature(CorrectorStrategy):
     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df.fillna(0, inplace=True)  # заменяем пустоту на нули
         df_correct = df[asdict(self.columns_nomenclature).values()].copy()
         return df_correct
-
-
-class CorrPrices(CorrectorStrategy):
-    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        df.fillna(0, inplace=True)  # заменяем пустоту на нули
-        return df
 
 
 class CorrNewInfoTableStrategy(CorrectorStrategy):
@@ -67,7 +47,6 @@ class CorrNomenclatureTableStrategy(CorrectorStrategy):
         df_numeric = df.fillna(0).copy()
         df_numeric[self.columns_nomenclature.total_quantity] = (df_numeric[self.columns_nomenclature.quantity]
                                                                 + df_numeric[self.columns_nomenclature.on_the_way])
-        # df_correct = df_numeric[asdict(self.columns_nomenclature).values()].copy()
         df_numeric[self.columns_nomenclature.created_at] = pd.to_datetime(
             df_numeric[self.columns_nomenclature.created_at],
             format='mixed',
@@ -93,14 +72,9 @@ class CorrNomenclatureTableStrategy(CorrectorStrategy):
 
         return filtered_df
 
-class CorrCollectionsNomenclature(CorrectorStrategy):
-    def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        df.fillna(0, inplace=True)  # заменяем пустоту на нули
-        df_correct = df[asdict(self.columns_nomenclature).values()].copy()
-        return df_correct
 
-class CorrPrices(CorrectorStrategy):
+class CorrCollectionsOrders(CorrectorStrategy):
     def correcting(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df.fillna(0, inplace=True)  # заменяем пустоту на нули
+        df = df[asdict(self.columns_main).values()].copy()
         return df
-

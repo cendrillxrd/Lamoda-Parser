@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 import sys
 
 from config import DEBUG, HOME_DIR
@@ -16,6 +16,7 @@ def log_message(file_name: str, message: str, log_level: str, *args, **kwargs):
     if DEBUG:
         console_handler = logging.StreamHandler(sys.stdout)
         logger.addHandler(console_handler)
+        console_handler.setFormatter(logging.Formatter("%(asctime)s %(message)s", datefmt='%Y-%m-%d %H:%M:%S'))
     log_level_int = {
         'DEBUG': logging.DEBUG,
         'INFO': logging.INFO,

@@ -3,12 +3,12 @@ from io import BytesIO
 from typing import Union
 
 import pandas as pd
-from dto.columns_main_dto import ColumnsMainDTO
+
 from config import BASE_COLUMNS_NAME
+from dto.columns_main_dto import ColumnsMainDTO
 from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
 from utils.date_helper import get_today_date
 from utils.save_helper import correct_columns_name
-
 
 
 class ConverterStrategy(ABC):
@@ -33,6 +33,34 @@ class ConvNomenclaturesStrategy(ConverterStrategy):
         df[self.columns_nomenclature.date] = get_today_date()
 
         return df
+
+
+class ConvAllNomenclaturesStrategy(ConverterStrategy):
+    def converting(self, data: dict) -> pd.DataFrame:
+        df = pd.json_normalize(data)
+        df.columns = df.columns.str.replace('nomenclature.', '', regex=False)
+        columns_name = [column for column in df.columns if column in BASE_COLUMNS_NAME]
+        columns_rename = {k: BASE_COLUMNS_NAME.get(k) for k in columns_name}
+        df.rename(columns_rename,
+                  inplace=True,
+                  axis=1)
+        df[self.columns_nomenclature.date] = get_today_date()
+        df_without_unnecessary_columns = df[
+            [self.columns_nomenclature.supplier_sku,
+             self.columns_nomenclature.supplier_parent_sku,
+             self.columns_nomenclature.brand,
+             self.columns_nomenclature.supplier_size,
+             self.columns_nomenclature.date,
+             self.columns_nomenclature.barcode,
+             self.columns_nomenclature.lamoda_sub_category,
+             self.columns_nomenclature.name,
+             self.columns_nomenclature.created_at,
+             self.columns_nomenclature.updated_at,
+             self.columns_nomenclature.status,
+             self.columns_nomenclature.price,
+             self.columns_nomenclature.quantity,
+             ]]
+        return df_without_unnecessary_columns
 
 
 class ConvStockStrategy(ConverterStrategy):
@@ -71,10 +99,9 @@ class ConvOrderInfoStrategy(ConverterStrategy):
                     self.columns_main.status: order['status'],
                     self.columns_main.created_at: order['createdAt'],
                     self.columns_main.updated_at: order['updatedAt'],
-                    self.columns_main.comment: order['comment'],
+                    # self.columns_main.comment: order['comment'],
                     self.columns_main.shipping_method_code: shipping_method_code,
                     self.columns_main.city: city,
-                    self.columns_main.currency: order['currency'],
                 }
                 item['status_product'] = item.pop('status')
                 item['id_item_order'] = item.pop('id')
@@ -92,6 +119,7 @@ class ConvOrderInfoStrategy(ConverterStrategy):
 
         return df
 
+
 class ConvMEDCollections(ConverterStrategy):
     def converting(self, data, **kwargs) -> pd.DataFrame:
         """Преобразует данные о коллекциях на меде в DataFrame"""
@@ -105,6 +133,7 @@ class ConvMEDCollections(ConverterStrategy):
             subset=self.columns_nomenclature.supplier_parent_sku, inplace=True)
         med_collections_df_without_unnecessary_columns.reset_index(inplace=True, drop=True)
         return med_collections_df_without_unnecessary_columns
+
 
 class ConvNomenclaturesPricesStrategy(ConverterStrategy):
     def converting(self, data: dict) -> pd.DataFrame:

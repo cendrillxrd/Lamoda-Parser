@@ -1,9 +1,15 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 from config import LIMIT_NOMENCLATURE
 
 
 @dataclass
 class NomenclatureDTO:
-    limit: int = LIMIT_NOMENCLATURE
-    page: int = 1
+    jsonrpc: str = '2.0'
+    id: str = None
+    method: str = None
+    params: dict = field(default_factory=lambda: {
+        'country': 'RU',
+        'page': 1,
+        'limit': LIMIT_NOMENCLATURE,
+    })

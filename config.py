@@ -14,7 +14,7 @@ columns_nomenclature = ColumnsNomenclatureDTO()
 
 BASE_URLS = {
     'live': 'https://api-b2b.lamoda.ru',
-    'demo': 'https://api-demo-b2b.lamoda.ru',
+    'b2b': 'https://public-api-seller.lamoda.ru',
     'med_collections_1': 'https://med-online.ru/upload/acrit.exportproplus/file.OZON.xlsx?1740656479',
     'med_collections_2': 'https://med-online.ru/upload/acrit.exportproplus/file.OZONdop.xlsx?1744707024',
     'med_collections_3': 'https://med-online.ru/upload/acrit.exportproplus/file.match-bikk.xlsx?1769676747',
@@ -25,18 +25,17 @@ CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
 LIMIT_NOMENCLATURE = 25
-LIMIT_STOCK = 1000
-LIMIT_ORDER = 1000
+LIMIT_STOCK = 25
+LIMIT_ORDER = 25
 TIME_SLEEP_NOMENCLATURES = 0.5
-TIME_SLEEP_STOCK = 20
-TIME_SLEEP_ORDER = 20
-TIME_SLEEP_ORDER_INFO = 0.1
+TIME_SLEEP_STOCK = 0.5
+TIME_SLEEP_ORDER = 0.5
+TIME_SLEEP_ORDER_INFO = 0.2
 
 BASE_COLUMNS_NAME = {'id': columns_main.id,
                      'paymentMethod': columns_main.payment_method,
                      'status': columns_main.status,
                      'sku': columns_main.sku,
-                     'lamodaSku': columns_main.lamoda_sku,
                      'status_product': columns_main.status_product,
                      'totalDiscount': columns_main.total_discount,
                      'salePrice': columns_main.sale_price,
@@ -50,25 +49,28 @@ BASE_COLUMNS_NAME = {'id': columns_main.id,
                      'partnerAgreedPrice': columns_main.partner_agreed_price,
                      'city': columns_main.city,
                      'shippingMethodCode': columns_main.shipping_method_code,
-                     'comment': columns_main.comment,
-                     'currency': columns_main.currency,
                      'shopName': columns_main.shop_name,
-                     'quantity': columns_main.stock,
+                     'quantity': columns_nomenclature.quantity,
                      'supplier_sku': columns_nomenclature.supplier_sku,
                      'supplier_parent_sku': columns_nomenclature.supplier_parent_sku,
+                     'seller_parent_sku': columns_nomenclature.supplier_parent_sku,
+                     'seller_sku': columns_nomenclature.supplier_sku,
                      'brand': columns_nomenclature.brand,
-                     'color': columns_nomenclature.color,
                      'barcode': columns_nomenclature.barcode,
                      'name': columns_nomenclature.name,
                      'createdAt': columns_nomenclature.created_at,
+                     'created_at': columns_nomenclature.created_at,
                      'updatedAt': columns_nomenclature.updated_at,
-                     'isSellable': columns_nomenclature.is_sellable,
+                     'updated_at': columns_nomenclature.updated_at,
                      'description': columns_main.description,
                      'supplierParentSku': columns_nomenclature.supplier_parent_sku,
                      'supplier_size': columns_nomenclature.supplier_size,
+                     'seller_size': columns_nomenclature.supplier_size,
                      'lamodaSubCategory': columns_nomenclature.lamoda_sub_category,
+                     'axapta_category_level2': columns_nomenclature.lamoda_sub_category,
                      'Артикул': columns_nomenclature.supplier_parent_sku,
                      'price': columns_nomenclature.price,
+                     'size': columns_main.size,
                      }
 
 ON_THE_WAY_SHIP_STATUS = ['Arrived to LME',

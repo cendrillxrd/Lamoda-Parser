@@ -1,10 +1,11 @@
-import requests
 import time
-from typing import Literal, Optional, Dict
+from typing import Dict, Literal, Optional
+
+import requests
+import urllib3
 
 from config import BASE_URLS, CLIENT_ID, CLIENT_SECRET
 from strategies.request_strategies import RequestStrategy
-from utils.log_helper import log_message
 
 
 class APIClient:
@@ -32,7 +33,7 @@ class APIClient:
 
     def make_request(
             self,
-            url_key: Literal['live', 'demo'],
+            url_key: Literal['live', 'b2b'],
             method: Literal['GET', 'POST'],
             endpoint: str,
             params: Optional[Dict] = None,
@@ -46,13 +47,20 @@ class APIClient:
                 url=url,
                 params=params,
                 json=payload,
-                timeout=60
+                timeout=(10, 60)
             )
             try:
                 response.raise_for_status()
                 if self.session.headers['Content-Type'] == 'application/zip':
                     return response
-                return response.json()
+                response_json = response.json()
+                if response_json.get('error'):
+                    self.api_key_manager.force_renew()
+                    self.api_key = self.api_key_manager.get_key()
+                    self._update_auth_header()
+                    time.sleep(10)
+                    continue
+                return response_json
 
             except requests.exceptions.HTTPError as err:
                 print(response.json())
@@ -69,7 +77,10 @@ class APIClient:
                     continue
                 raise err
 
-            except requests.exceptions.ReadTimeout as err:
+            except (requests.exceptions.ReadTimeout,
+                    requests.exceptions.ConnectTimeout,
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.SSLError,) as err:
                 print(response.json())
                 time.sleep(10)
                 continue
@@ -78,6 +89,19 @@ class APIClient:
                 if attempt == retries - 1:
                     raise err
                 time.sleep(1)
+
+            except urllib3.exceptions.ProtocolError as e:
+
+                print(f"Ошибка соединения (попытка {attempt + 1}/{retries}): {e}")
+
+                if attempt < retries - 1:
+                    # Экспоненциальная задержка
+                    wait_time = 2 ** attempt
+                    print(f"Повтор через {wait_time} секунд...")
+                    time.sleep(wait_time)
+                else:
+                    print("Превышено количество попыток")
+                    raise
 
         return None
 
@@ -98,6 +122,7 @@ class APIClient:
                                      params=params,
                                      endpoint=endpoint)
         return response['access_token']
+
 
 class MedClient:
     def __init__(self):
