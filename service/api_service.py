@@ -4,20 +4,15 @@ import pandas as pd
 
 from strategies.convert_strategies import (ConvAllNomenclaturesStrategy,
                                            ConvMEDCollections,
-                                           ConvNomenclaturesPricesStrategy,
-                                           ConvNomenclaturesStrategy,
                                            ConvOrderInfoStrategy,
-                                           ConvOrderStrategy,
-                                           ConvStockStrategy)
+                                           ConvOrderStrategy)
 from strategies.request_strategies import (ReqFullNomenclatureStrategy,
                                            ReqMEDCollectionsFirst,
                                            ReqMEDCollectionsFourth,
                                            ReqMEDCollectionsSecond,
                                            ReqMEDCollectionsThird,
-                                           ReqNomenclaturePricesStrategy,
-                                           ReqNomenclatureStrategy,
                                            ReqOrderInfoStrategy,
-                                           ReqOrdersStrategy, ReqStockStrategy)
+                                           ReqOrdersStrategy)
 from utils.log_helper import log_message
 from workers.api_client import APIClient, MedClient
 from workers.converter import Converter
