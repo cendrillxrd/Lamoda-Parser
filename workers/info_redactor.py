@@ -1,3 +1,5 @@
+from pandas import DataFrame
+
 from config import (NOMENCLATURE_DAY_FILE_NAME, NOMENCLATURE_FILE_NAME,
                     ORDERS_FILE_NAME)
 from dto.columns_main_dto import ColumnsMainDTO
@@ -20,7 +22,7 @@ class InfoRedactor:
                                                                                     collections_merged_1_2_3_4)
         orders_stocks_by_day_collections = self.red.merge_orders_with_med_collections(info.orders_month,
                                                                                       collections_merged_1_2_3_4)
-        if info.orders_data_from_file.is_dataframe():
+        if isinstance(info.orders_data_from_file, DataFrame):
             actual_orders_info = self.red.merge_orders_info(info.orders_data_from_file,
                                                             orders_stocks_by_day_collections)
         else:
