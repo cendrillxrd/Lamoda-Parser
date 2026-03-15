@@ -56,21 +56,39 @@ class MergeLamodaCollections(MergeStrategies):
 
 
 class MergeOrders(MergeStrategies):
-    def __init__(self, merge_on: str = (columns_main.id, columns_main.sku)):
+    def __init__(self, merge_on: tuple = (columns_main.id, columns_main.sku)):
         self.merge_on = merge_on
 
-    def merge(self, orders_main: pd.DataFrame, orders_new: pd.DataFrame) -> pd.DataFrame:
-        # Устанавливаем индекс
-        df_main_indexed = orders_main.set_index([columns_main.id, columns_main.sku])
-        df_additional_indexed = orders_new.set_index([columns_main.id, columns_main.sku])
+    def _add_position_counter(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Добавляет временный счетчик позиций"""
+        df = df.copy()
+        df['_temp_position'] = df.groupby(list(self.merge_on)).cumcount()
+        return df
 
-        # Обновляем данные: новые данные перезаписывают старые
+    def merge(self, orders_main: pd.DataFrame, orders_new: pd.DataFrame) -> pd.DataFrame:
+        # Добавляем временный счетчик
+        orders_main_with_pos = self._add_position_counter(orders_main)
+        orders_new_with_pos = self._add_position_counter(orders_new)
+
+        # Полный список для индекса
+        full_merge_on = list(self.merge_on) + ['_temp_position']
+
+        # Устанавливаем индекс
+        df_main_indexed = orders_main_with_pos.set_index(full_merge_on)
+        df_additional_indexed = orders_new_with_pos.set_index(full_merge_on)
+
+        # Обновляем данные
         result = df_additional_indexed.combine_first(df_main_indexed)
 
         # Сбрасываем индекс
         result = result.reset_index()
 
+        # Удаляем временную колонку
+        result = result.drop('_temp_position', axis=1)
+
+        # Сортируем
         result.sort_values(columns_main.created_at, inplace=True, ascending=True)
+
         return result
 
 
