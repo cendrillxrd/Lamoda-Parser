@@ -3,8 +3,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from utils.path_helper import get_desktop_path
-
 load_dotenv()
 from dto.columns_main_dto import ColumnsMainDTO
 from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
@@ -100,13 +98,6 @@ ON_THE_WAY_GOODS_SHIPS_STATUS = ['Arrived to LM Express',
                                  'Not delivered',
                                  'Not bought',
                                  'Rejected']
-
-DESKTOP_FILE_PATH = get_desktop_path()
-LAMODA_FOLDER_NAME = 'LAMODA DATA'
-FILE_PATH = os.path.join(DESKTOP_FILE_PATH, LAMODA_FOLDER_NAME)
-ORDERS_FILE_NAME = 'Заказы'
-NOMENCLATURE_FILE_NAME = 'Номенклатура'
-NOMENCLATURE_DAY_FILE_NAME = 'Последняя номенклатура'
 
 DEBUG = os.getenv('DEBUG')
 HOME_DIR = Path(__file__).resolve().parent.parent

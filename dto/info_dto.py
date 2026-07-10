@@ -14,4 +14,3 @@ class InfoDTO:
     collection2: Optional[pd.DataFrame] = None
     collection3: Optional[pd.DataFrame] = None
     collection4: Optional[pd.DataFrame] = None
-    orders_data_from_file: Optional[pd.DataFrame] = None

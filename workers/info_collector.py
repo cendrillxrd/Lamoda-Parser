@@ -1,7 +1,4 @@
-import pandas as pd
-
 from api_key import ApiKeyManager
-from config import FILE_PATH, ORDERS_FILE_NAME
 from dto.info_dto import InfoDTO
 from service.api_service import APIService, MedService
 from utils.date_helper import get_today_date
@@ -16,10 +13,6 @@ class InfoCollector:
         self.med = MedService()
 
     def collect_info(self) -> InfoDTO:
-        try:
-            orders_data_from_file = pd.read_csv(f'{FILE_PATH}/{ORDERS_FILE_NAME}.csv', encoding='cp1251')
-        except FileNotFoundError:
-            orders_data_from_file = None
         nomenclature = self.api.get_all_nomenclatures()
         orders_month = self.api.get_orders_info_by_products(date_str=today, period='month')
         collections1 = self.med.get_med_collections_first()
@@ -34,5 +27,4 @@ class InfoCollector:
             collection2=collections2,
             collection3=collections3,
             collection4=collections4,
-            orders_data_from_file=orders_data_from_file
         )

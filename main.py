@@ -1,4 +1,4 @@
-from utils.save_helper import save_info
+from utils.db_helper import save_info
 from workers.info_collector import InfoCollector
 from workers.info_redactor import InfoRedactor
 

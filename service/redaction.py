@@ -6,7 +6,7 @@ from strategies.correct_strategies import (CorrCollectionsNomenclature,
                                            CorrCollectionsOrders,
                                            CorrNomenclatureTableStrategy)
 from strategies.merge_strategies import (MergeByShipStrategy, MergeCollections,
-                                         MergeLamodaCollections, MergeOrders,
+                                         MergeLamodaCollections,
                                          MergeOrdersCollections)
 from workers.corrector import Corrector
 from workers.merger import Merger
@@ -54,9 +54,4 @@ class RedactionService:
     @with_strategies(merge_strategy_cls=MergeCollections)
     def merge_collections(self, col1_df: pd.DataFrame, col2_df: pd.DataFrame) -> pd.DataFrame:
         collections_merged = self.merger.merge(col1_df, col2_df)
-        return collections_merged
-
-    @with_strategies(merge_strategy_cls=MergeOrders)
-    def merge_orders_info(self, main_df: pd.DataFrame, new_df: pd.DataFrame) -> pd.DataFrame:
-        collections_merged = self.merger.merge(main_df, new_df)
         return collections_merged

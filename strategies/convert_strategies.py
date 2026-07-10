@@ -8,7 +8,7 @@ from config import BASE_COLUMNS_NAME
 from dto.columns_main_dto import ColumnsMainDTO
 from dto.columns_nomenclature_dto import ColumnsNomenclatureDTO
 from utils.date_helper import get_today_date
-from utils.save_helper import correct_columns_name
+from utils.columns_helper import correct_columns_name
 
 
 class ConverterStrategy(ABC):
