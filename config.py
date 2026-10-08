@@ -13,6 +13,7 @@ columns_nomenclature = ColumnsNomenclatureDTO()
 BASE_URLS = {
     'live': 'https://api-b2b.lamoda.ru',
     'b2b': 'https://public-api-seller.lamoda.ru',
+    'public': 'https://public-api-seller.lamoda.ru/api',
     'med_collections_1': 'https://med-online.ru/upload/acrit.exportproplus/file.OZON.xlsx?1740656479',
     'med_collections_2': 'https://med-online.ru/upload/acrit.exportproplus/file.OZONdop.xlsx?1744707024',
     'med_collections_3': 'https://med-online.ru/upload/acrit.exportproplus/file.match-bikk.xlsx?1769676747',

@@ -1,14 +1,12 @@
 import time
 from abc import ABC, abstractmethod
-from typing import Literal, Optional
-
-import pandas as pd
+from typing import Literal
 
 from config import (TIME_SLEEP_NOMENCLATURES, TIME_SLEEP_ORDER,
-                    TIME_SLEEP_ORDER_INFO, TIME_SLEEP_STOCK)
+                    TIME_SLEEP_ORDER_INFO)
 from dto.nomenclature_dto import NomenclatureDTO
 from dto.order_dto import OrderDTO
-from dto.stock_dto import StockDTO, asdict
+from dto.stock_dto import asdict
 from utils.create_id_helper import generate_uuid_id
 from utils.log_helper import log_message
 
